@@ -68,7 +68,7 @@ const App = observer(() => {
 
   return (
       <BrowserRouter>
-        <div className='w-full flex justify-center items-center pt-8 px-8'>
+        <div className='w-full flex justify-center items-center lg:pt-8 pt-4 lg:px-8 px-4'>
         <Navigation />
         </div>
         <div>

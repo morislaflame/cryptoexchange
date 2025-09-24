@@ -160,8 +160,6 @@
 
 @media (max-width: 768px) {
   .card-nav-container {
-    width: 90%;
-    top: 1.2em;
   }
 
   .card-nav-top {

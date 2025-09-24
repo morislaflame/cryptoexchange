@@ -1,5 +1,8 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { gsap } from 'gsap';
+import { CiRepeat } from 'react-icons/ci';
+import CurrencyCard from './CurrencyCard';
+import type { Currency } from '../types/currency';
 import './MagicBento.css';
 
 export interface BentoCardProps {
@@ -249,8 +252,8 @@ const ParticleCard: React.FC<{
       }
 
       if (enableMagnetism) {
-        const magnetX = (x - centerX) * 0.05;
-        const magnetY = (y - centerY) * 0.05;
+        const magnetX = (x - centerX) * 0.01;
+        const magnetY = (y - centerY) * 0.01;
 
         magnetismAnimationRef.current = gsap.to(element, {
           x: magnetX,
@@ -474,7 +477,7 @@ const BentoCardGrid: React.FC<{
   children: React.ReactNode;
   gridRef?: React.RefObject<HTMLDivElement | null>;
 }> = ({ children, gridRef }) => (
-  <div className="card-grid bento-section" ref={gridRef}>
+  <div className="card-grid bento-section gap-4" ref={gridRef}>
     {children}
   </div>
 );
@@ -496,7 +499,6 @@ const useMobileDetection = () => {
 
 const MagicBento: React.FC<BentoProps> = ({
   textAutoHide = true,
-  enableStars = true,
   enableSpotlight = true,
   enableBorderGlow = true,
   disableAnimations = false,
@@ -511,6 +513,33 @@ const MagicBento: React.FC<BentoProps> = ({
   const isMobile = useMobileDetection();
   const shouldDisableAnimations = disableAnimations || isMobile;
 
+  // Состояние для обмена валют
+  const [fromData, setFromData] = useState<{amount: string; currency?: Currency}>({ amount: '' });
+  const [toData, setToData] = useState<{amount: string; currency?: Currency}>({ amount: '' });
+
+  const handleFromAmountChange = (amount: string) => {
+    setFromData(prev => ({ ...prev, amount }));
+  };
+
+  const handleFromCurrencySelect = (currency: Currency) => {
+    setFromData(prev => ({ ...prev, currency }));
+  };
+
+  const handleToAmountChange = (amount: string) => {
+    setToData(prev => ({ ...prev, amount }));
+  };
+
+  const handleToCurrencySelect = (currency: Currency) => {
+    setToData(prev => ({ ...prev, currency }));
+  };
+
+  const handleSwapCurrencies = () => {
+    const tempData = { ...fromData };
+    setFromData({ ...toData });
+    setToData({ ...tempData });
+  };
+
+
   return (
     <>
       {enableSpotlight && (
@@ -523,22 +552,27 @@ const MagicBento: React.FC<BentoProps> = ({
         />
       )}
 
-      <BentoCardGrid gridRef={gridRef}>
-        {cardData.map((card, index) => {
-          const baseClassName = `card ${textAutoHide ? 'card--text-autohide' : ''} ${enableBorderGlow ? 'card--border-glow' : ''}`;
-          const cardProps = {
-            className: baseClassName,
-            style: {
-              backgroundColor: card.color,
-              '--glow-color': glowColor
-            } as React.CSSProperties
-          };
+      <div className="bento-section-wrapper">
+        <BentoCardGrid gridRef={gridRef}>
+          {cardData.map((card, index) => {
+            const baseClassName = `card ${textAutoHide ? 'card--text-autohide' : ''} ${enableBorderGlow ? 'card--border-glow' : ''}`;
+            const cardProps = {
+              className: baseClassName,
+              style: {
+                backgroundColor: card.color,
+                '--glow-color': glowColor
+              } as React.CSSProperties
+            };
 
-          if (enableStars) {
+            const finalCardProps = (index === 0 || index === 1) ? {
+              ...cardProps,
+              className: `${cardProps.className} currency-exchange-card`
+            } : cardProps;
+
             return (
               <ParticleCard
                 key={index}
-                {...cardProps}
+                {...finalCardProps}
                 disableAnimations={shouldDisableAnimations}
                 particleCount={particleCount}
                 glowColor={glowColor}
@@ -546,141 +580,41 @@ const MagicBento: React.FC<BentoProps> = ({
                 clickEffect={clickEffect}
                 enableMagnetism={enableMagnetism}
               >
-                <div className="card__header">
-                  <div className="card__label">{card.label}</div>
-                </div>
-                <div className="card__content">
-                  <h2 className="card__title">{card.title}</h2>
-                  <p className="card__description">{card.description}</p>
-                </div>
+                {(index === 0 || index === 1) ? (
+                  <CurrencyCard
+                    title={index === 0 ? "Отдаете" : "Получаете"}
+                    onAmountChange={index === 0 ? handleFromAmountChange : handleToAmountChange}
+                    onCurrencySelect={index === 0 ? handleFromCurrencySelect : handleToCurrencySelect}
+                    amount={index === 0 ? fromData.amount : toData.amount}
+                    selectedCurrency={index === 0 ? fromData.currency : toData.currency}
+                  />
+                ) : (
+                  <>
+                    <div className="card__header">
+                      <div className="card__label">{card.label}</div>
+                    </div>
+                    <div className="card__content">
+                      <h2 className="card__title">{card.title}</h2>
+                      <p className="card__description">{card.description}</p>
+                    </div>
+                  </>
+                )}
               </ParticleCard>
             );
-          }
+          })}
+        </BentoCardGrid>
 
-          return (
-            <div
-              key={index}
-              {...cardProps}
-              ref={el => {
-                if (!el) return;
-
-                const handleMouseMove = (e: MouseEvent) => {
-                  if (shouldDisableAnimations) return;
-
-                  const rect = el.getBoundingClientRect();
-                  const x = e.clientX - rect.left;
-                  const y = e.clientY - rect.top;
-                  const centerX = rect.width / 2;
-                  const centerY = rect.height / 2;
-
-                  if (enableTilt) {
-                    const rotateX = ((y - centerY) / centerY) * -10;
-                    const rotateY = ((x - centerX) / centerX) * 10;
-                    gsap.to(el, {
-                      rotateX,
-                      rotateY,
-                      duration: 0.1,
-                      ease: 'power2.out',
-                      transformPerspective: 1000
-                    });
-                  }
-
-                  if (enableMagnetism) {
-                    const magnetX = (x - centerX) * 0.05;
-                    const magnetY = (y - centerY) * 0.05;
-                    gsap.to(el, {
-                      x: magnetX,
-                      y: magnetY,
-                      duration: 0.3,
-                      ease: 'power2.out'
-                    });
-                  }
-                };
-
-                const handleMouseLeave = () => {
-                  if (shouldDisableAnimations) return;
-
-                  if (enableTilt) {
-                    gsap.to(el, {
-                      rotateX: 0,
-                      rotateY: 0,
-                      duration: 0.3,
-                      ease: 'power2.out'
-                    });
-                  }
-
-                  if (enableMagnetism) {
-                    gsap.to(el, {
-                      x: 0,
-                      y: 0,
-                      duration: 0.3,
-                      ease: 'power2.out'
-                    });
-                  }
-                };
-
-                const handleClick = (e: MouseEvent) => {
-                  if (!clickEffect || shouldDisableAnimations) return;
-
-                  const rect = el.getBoundingClientRect();
-                  const x = e.clientX - rect.left;
-                  const y = e.clientY - rect.top;
-
-                  // Calculate the maximum distance from click point to any corner
-                  const maxDistance = Math.max(
-                    Math.hypot(x, y),
-                    Math.hypot(x - rect.width, y),
-                    Math.hypot(x, y - rect.height),
-                    Math.hypot(x - rect.width, y - rect.height)
-                  );
-
-                  const ripple = document.createElement('div');
-                  ripple.style.cssText = `
-                    position: absolute;
-                    width: ${maxDistance * 2}px;
-                    height: ${maxDistance * 2}px;
-                    border-radius: 50%;
-                    background: radial-gradient(circle, rgba(${glowColor}, 0.4) 0%, rgba(${glowColor}, 0.2) 30%, transparent 70%);
-                    left: ${x - maxDistance}px;
-                    top: ${y - maxDistance}px;
-                    pointer-events: none;
-                    z-index: 1000;
-                  `;
-
-                  el.appendChild(ripple);
-
-                  gsap.fromTo(
-                    ripple,
-                    {
-                      scale: 0,
-                      opacity: 1
-                    },
-                    {
-                      scale: 1,
-                      opacity: 0,
-                      duration: 0.8,
-                      ease: 'power2.out',
-                      onComplete: () => ripple.remove()
-                    }
-                  );
-                };
-
-                el.addEventListener('mousemove', handleMouseMove);
-                el.addEventListener('mouseleave', handleMouseLeave);
-                el.addEventListener('click', handleClick);
-              }}
-            >
-              <div className="card__header">
-                <div className="card__label">{card.label}</div>
-              </div>
-              <div className="card__content">
-                <h2 className="card__title">{card.title}</h2>
-                <p className="card__description">{card.description}</p>
-              </div>
-            </div>
-          );
-        })}
-      </BentoCardGrid>
+        {/* Иконка обмена абсолютно позиционирована */}
+        <div className="swap-icon-container">
+          <button 
+            className="swap-icon-button"
+            onClick={handleSwapCurrencies}
+            title="Поменять валюты местами"
+          >
+            <CiRepeat size={24} />
+          </button>
+        </div>
+      </div>
     </>
   );
 };

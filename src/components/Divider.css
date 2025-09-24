@@ -1,0 +1,309 @@
+/* Базовые стили для Divider */
+.divider {
+  /* Цветовые переменные */
+  --default-color: rgba(255, 255, 255, 0.1);
+  --primary-color: #10b981;
+  --secondary-color: #6b7280;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  
+  /* Размеры */
+  --small-thickness: 1px;
+  --medium-thickness: 2px;
+  --large-thickness: 3px;
+  
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* Ориентация */
+.divider[data-orientation="horizontal"] {
+  flex-direction: row;
+  width: 100%;
+}
+
+.divider[data-orientation="vertical"] {
+  flex-direction: column;
+  height: 100%;
+  width: auto;
+}
+
+/* Основная линия */
+.divider-line {
+  flex: 1;
+  background-color: var(--line-color);
+  transition: background-color 0.2s ease;
+}
+
+/* Горизонтальная линия */
+.divider[data-orientation="horizontal"] .divider-line {
+  height: var(--line-thickness);
+  width: 100%;
+}
+
+/* Вертикальная линия */
+.divider[data-orientation="vertical"] .divider-line {
+  width: var(--line-thickness);
+  height: 100%;
+}
+
+/* Линии с контентом */
+.divider[data-has-content="true"][data-orientation="horizontal"] .divider-line-before,
+.divider[data-has-content="true"][data-orientation="horizontal"] .divider-line-after {
+  height: var(--line-thickness);
+}
+
+.divider[data-has-content="true"][data-orientation="vertical"] .divider-line-before,
+.divider[data-has-content="true"][data-orientation="vertical"] .divider-line-after {
+  width: var(--line-thickness);
+}
+
+/* Контент */
+.divider-content {
+  padding: 0 12px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  background: var(--bg-color, transparent);
+  border-radius: 4px;
+}
+
+.divider[data-orientation="vertical"] .divider-content {
+  padding: 12px 0;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* Позиционирование контента */
+.divider[data-position="left"] .divider-line-before {
+  flex: 0.2;
+}
+
+.divider[data-position="left"] .divider-line-after {
+  flex: 0.8;
+}
+
+.divider[data-position="right"] .divider-line-before {
+  flex: 0.8;
+}
+
+.divider[data-position="right"] .divider-line-after {
+  flex: 0.2;
+}
+
+/* Размеры */
+.divider[data-size="small"] {
+  --line-thickness: var(--small-thickness);
+}
+
+.divider[data-size="medium"] {
+  --line-thickness: var(--medium-thickness);
+}
+
+.divider[data-size="large"] {
+  --line-thickness: var(--large-thickness);
+}
+
+.divider[data-size="small"] .divider-content {
+  font-size: 0.75rem;
+  padding: 0 8px;
+}
+
+.divider[data-size="large"] .divider-content {
+  font-size: 1rem;
+  padding: 0 16px;
+}
+
+/* Варианты стилей */
+.divider[data-variant="solid"] .divider-line {
+  background: var(--line-color);
+}
+
+.divider[data-variant="dashed"] .divider-line {
+  background: transparent;
+  border-style: dashed;
+  border-width: 0;
+}
+
+.divider[data-variant="dashed"][data-orientation="horizontal"] .divider-line {
+  border-top-width: var(--line-thickness);
+  border-color: var(--line-color);
+}
+
+.divider[data-variant="dashed"][data-orientation="vertical"] .divider-line {
+  border-left-width: var(--line-thickness);
+  border-color: var(--line-color);
+}
+
+.divider[data-variant="dotted"] .divider-line {
+  background: transparent;
+  border-style: dotted;
+  border-width: 0;
+}
+
+.divider[data-variant="dotted"][data-orientation="horizontal"] .divider-line {
+  border-top-width: var(--line-thickness);
+  border-color: var(--line-color);
+}
+
+.divider[data-variant="dotted"][data-orientation="vertical"] .divider-line {
+  border-left-width: var(--line-thickness);
+  border-color: var(--line-color);
+}
+
+.divider[data-variant="gradient"] .divider-line {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--line-color) 50%,
+    transparent 100%
+  );
+}
+
+.divider[data-variant="gradient"][data-orientation="vertical"] .divider-line {
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    var(--line-color) 50%,
+    transparent 100%
+  );
+}
+
+/* Цветовые схемы */
+.divider[data-color="default"] {
+  --line-color: var(--default-color);
+}
+
+.divider[data-color="primary"] {
+  --line-color: var(--primary-color);
+}
+
+.divider[data-color="secondary"] {
+  --line-color: var(--secondary-color);
+}
+
+.divider[data-color="success"] {
+  --line-color: var(--success-color);
+}
+
+.divider[data-color="warning"] {
+  --line-color: var(--warning-color);
+}
+
+.divider[data-color="danger"] {
+  --line-color: var(--danger-color);
+}
+
+/* Отступы */
+.divider[data-spacing="none"] {
+  margin: 0;
+}
+
+.divider[data-spacing="small"] {
+  margin: 8px 0;
+}
+
+.divider[data-spacing="medium"] {
+  margin: 16px 0;
+}
+
+.divider[data-spacing="large"] {
+  margin: 24px 0;
+}
+
+.divider[data-orientation="vertical"][data-spacing="small"] {
+  margin: 0 8px;
+}
+
+.divider[data-orientation="vertical"][data-spacing="medium"] {
+  margin: 0 16px;
+}
+
+.divider[data-orientation="vertical"][data-spacing="large"] {
+  margin: 0 24px;
+}
+
+/* Анимации */
+.divider-line {
+  position: relative;
+  overflow: hidden;
+}
+
+.divider-line::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 100%
+  );
+  transition: left 0.8s ease;
+}
+
+.divider:hover .divider-line::before {
+  left: 100%;
+}
+
+.divider[data-orientation="vertical"] .divider-line::before {
+  top: -100%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 100%
+  );
+}
+
+.divider[data-orientation="vertical"]:hover .divider-line::before {
+  top: 100%;
+}
+
+/* Специальные эффекты для градиентных разделителей */
+.divider[data-variant="gradient"][data-color="primary"] .divider-line {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(16, 185, 129, 0.3) 20%,
+    rgba(16, 185, 129, 0.8) 50%,
+    rgba(16, 185, 129, 0.3) 80%,
+    transparent 100%
+  );
+}
+
+.divider[data-variant="gradient"][data-color="primary"][data-orientation="vertical"] .divider-line {
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(16, 185, 129, 0.3) 20%,
+    rgba(16, 185, 129, 0.8) 50%,
+    rgba(16, 185, 129, 0.3) 80%,
+    transparent 100%
+  );
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .divider-content {
+    font-size: 0.8rem;
+    padding: 0 8px;
+  }
+  
+  .divider[data-spacing="medium"] {
+    margin: 12px 0;
+  }
+  
+  .divider[data-spacing="large"] {
+    margin: 16px 0;
+  }
+}

@@ -1,0 +1,243 @@
+/* Базовые стили для кастомных табов */
+.custom-tabs {
+  --tab-border-radius: 16px;
+  --tab-transition: all 0.2s ease;
+  
+  /* Цветовые переменные */
+  --primary-color: #10b981;
+  --primary-hover: #059669;
+  --primary-active: #047857;
+  
+  --secondary-color: #6b7280;
+  --secondary-hover: #4b5563;
+  --secondary-active: #374151;
+  
+  --success-color: #10b981;
+  --success-hover: #059669;
+  --success-active: #047857;
+  
+  --warning-color: #f59e0b;
+  --warning-hover: #d97706;
+  --warning-active: #b45309;
+  
+  --danger-color: #ef4444;
+  --danger-hover: #dc2626;
+  --danger-active: #b91c1c;
+  
+  width: 100%;
+}
+
+.custom-tabs-list {
+  display: flex;
+  /* background: rgba(255, 255, 255, 0.05); */
+  /* border: 1px solid rgba(255, 255, 255, 0.1); */
+}
+
+.custom-tab-trigger {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: var(--tab-transition);
+  font-weight: 500;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+
+.custom-tab-trigger:hover:not(.disabled) {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.custom-tab-trigger.active {
+  color: #ffffff;
+  background: var(--active-bg);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.custom-tab-trigger.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.tab-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tab-label {
+  flex: 1;
+  text-align: center;
+}
+
+/* Размеры */
+.custom-tabs[data-size="small"] .custom-tab-trigger {
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  min-height: 32px;
+}
+
+.custom-tabs[data-size="small"] .tab-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.custom-tabs[data-size="medium"] .custom-tab-trigger {
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  min-height: 40px;
+}
+
+.custom-tabs[data-size="medium"] .tab-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.custom-tabs[data-size="large"] .custom-tab-trigger {
+  padding: 12px 20px;
+  font-size: 1rem;
+  min-height: 48px;
+}
+
+.custom-tabs[data-size="large"] .tab-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Варианты стилей */
+.custom-tabs[data-variant="pills"] .custom-tabs-list {
+  background: transparent;
+  border: none;
+  padding: 0;
+  gap: 8px;
+}
+
+.custom-tabs[data-variant="pills"] .custom-tab-trigger {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+}
+
+.custom-tabs[data-variant="underline"] .custom-tabs-list {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0;
+  padding: 0;
+  gap: 0;
+}
+
+.custom-tabs[data-variant="underline"] .custom-tab-trigger {
+  border-radius: 0;
+  border-bottom: 2px solid transparent;
+  padding-bottom: 12px;
+}
+
+.custom-tabs[data-variant="underline"] .custom-tab-trigger.active {
+  background: transparent;
+  border-bottom-color: var(--active-color);
+  box-shadow: none;
+}
+
+/* Цветовые схемы */
+.custom-tabs[data-color="primary"] {
+  --active-bg: var(--primary-color);
+  --active-color: var(--primary-color);
+}
+
+.custom-tabs[data-color="secondary"] {
+  --active-bg: var(--secondary-color);
+  --active-color: var(--secondary-color);
+}
+
+.custom-tabs[data-color="success"] {
+  --active-bg: var(--success-color);
+  --active-color: var(--success-color);
+}
+
+.custom-tabs[data-color="warning"] {
+  --active-bg: var(--warning-color);
+  --active-color: var(--warning-color);
+}
+
+.custom-tabs[data-color="danger"] {
+  --active-bg: var(--danger-color);
+  --active-color: var(--danger-color);
+}
+
+/* Полная ширина */
+.custom-tabs[data-full-width="false"] .custom-tabs-list {
+  width: fit-content;
+}
+
+.custom-tabs[data-full-width="false"] .custom-tab-trigger {
+  flex: none;
+}
+
+/* Анимации */
+.custom-tab-trigger::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.custom-tab-trigger:hover:not(.disabled)::before {
+  transform: translateX(100%);
+}
+
+.custom-tab-trigger.active::before {
+  display: none;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .custom-tabs[data-size="large"] .custom-tab-trigger {
+    padding: 10px 16px;
+    font-size: 0.875rem;
+    min-height: 40px;
+  }
+  
+  .custom-tabs[data-size="medium"] .custom-tab-trigger {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    min-height: 36px;
+  }
+  
+  .custom-tabs[data-size="small"] .custom-tab-trigger {
+    padding: 6px 8px;
+    font-size: 0.7rem;
+    min-height: 32px;
+  }
+  
+  .tab-label {
+    font-size: inherit;
+  }
+}
+
+/* Состояния фокуса */
+.custom-tab-trigger:focus-visible {
+  outline: 2px solid var(--active-color);
+  outline-offset: 2px;
+}
+
+/* Темная тема улучшения */
+.custom-tabs-list {
+  backdrop-filter: blur(10px);
+}
+
+.custom-tab-trigger.active {
+  backdrop-filter: blur(10px);
+}
