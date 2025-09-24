@@ -86,7 +86,7 @@ const CustomInput: React.FC<CustomInputProps> = (props) => {
 
           {/* Информация о валюте (только для amount варианта) */}
           {props.variant === 'amount' && props.selectedCurrency && (
-            <div className="custom-input-currency">
+            <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm px-2 py-1 border border-emerald-500/20 rounded-lg backdrop-blur-sm justify-center">
               <span className="currency-symbol">
                 {props.selectedCurrency.symbol}
               </span>

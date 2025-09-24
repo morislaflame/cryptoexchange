@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { gsap } from 'gsap';
 import { CiRepeat } from 'react-icons/ci';
 import CurrencyCard from './CurrencyCard';
+import ConversionSummary from './ConversionSummary';
 import type { Currency } from '../types/currency';
 import { convertCurrency } from '../types/exchangeRates';
 import './MagicBento.css';
@@ -574,6 +575,17 @@ const MagicBento: React.FC<BentoProps> = ({
     setToData({ ...tempData });
   };
 
+  const handleCreateOrder = () => {
+    // Здесь будет логика создания заявки
+    console.log('Создание заявки:', {
+      from: fromData.currency,
+      to: toData.currency,
+      fromAmount: fromData.amount,
+      toAmount: toData.amount
+    });
+    alert('Заявка создана! (Это заглушка)');
+  };
+
   // Автоматическая конвертация при изменении суммы или валюты в первой карточке
   useEffect(() => {
     if (fromData.amount && fromData.currency && toData.currency) {
@@ -623,7 +635,7 @@ const MagicBento: React.FC<BentoProps> = ({
             } as React.CSSProperties
           };
 
-            const finalCardProps = (index === 0 || index === 1) ? {
+            const finalCardProps = (index === 0 || index === 1 || index === 2) ? {
               ...cardProps,
               className: `${cardProps.className} currency-exchange-card`
             } : cardProps;
@@ -654,15 +666,13 @@ const MagicBento: React.FC<BentoProps> = ({
                     displayOnly={index === 1} // Вторая карточка только для отображения
                   />
                 ) : (
-                  <>
-                <div className="card__header">
-                  <div className="card__label">{card.label}</div>
-                </div>
-                <div className="card__content">
-                  <h2 className="card__title">{card.title}</h2>
-                  <p className="card__description">{card.description}</p>
-                </div>
-                  </>
+                  <ConversionSummary
+                    fromCurrency={fromData.currency}
+                    toCurrency={toData.currency}
+                    fromAmount={fromData.amount}
+                    toAmount={toData.amount}
+                    onCreateOrder={handleCreateOrder}
+                  />
                 )}
               </ParticleCard>
             );

@@ -18,6 +18,8 @@ interface DividerProps {
   className?: string;
   /** Отступы */
   spacing?: 'none' | 'small' | 'medium' | 'large';
+  /** Иконка в центре (вместо children) */
+  icon?: ReactNode;
 }
 
 const Divider: React.FC<DividerProps> = ({
@@ -28,9 +30,10 @@ const Divider: React.FC<DividerProps> = ({
   children,
   position = 'center',
   className = '',
-  spacing = 'medium'
+  spacing = 'medium',
+  icon
 }) => {
-  const hasContent = !!children;
+  const hasContent = !!children || !!icon;
 
   return (
     <div
@@ -48,7 +51,13 @@ const Divider: React.FC<DividerProps> = ({
         <>
           <div className="divider-line divider-line-before" />
           <div className="divider-content">
-            {children}
+            {icon ? (
+              <div className="divider-icon">
+                {icon}
+              </div>
+            ) : (
+              children
+            )}
           </div>
           <div className="divider-line divider-line-after" />
         </>

@@ -7,8 +7,8 @@ const MainPage = () => {
             <div className='w-full'>
                 <MagicBento 
                     clickEffect={true}
-                    enableMagnetism={true}
-                    enableSpotlight={true}
+                    enableMagnetism={false}
+                    enableSpotlight={false}
                     enableBorderGlow={true}
                     enableStars={false}
                     disableAnimations={false}

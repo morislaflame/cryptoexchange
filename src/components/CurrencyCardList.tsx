@@ -112,7 +112,6 @@ const CurrencyCardList: React.FC<CurrencyCardListProps> = ({
   currencies,
   selectedCurrency,
   onCurrencySelect,
-  maxHeight = 'max-h-80',
   enableKeyboardNavigation = true,
   className = ''
 }) => {
@@ -211,7 +210,7 @@ const CurrencyCardList: React.FC<CurrencyCardListProps> = ({
       <div
         ref={listRef}
         className={`
-          ${maxHeight} overflow-y-auto
+          lg:max-h-80 max-h-40 overflow-y-auto
           scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/20 hide-scrollbar
         `}
       >

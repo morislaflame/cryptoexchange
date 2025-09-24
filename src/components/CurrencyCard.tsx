@@ -118,7 +118,7 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
                     {amount || '0.000000'}
                   </span>
                   {selectedCurrency && (
-                    <div className="amount-display-currency">
+                    <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm px-2 py-1 border border-emerald-500/20 rounded-lg backdrop-blur-sm justify-center">
                       <span className="currency-symbol">
                         {selectedCurrency.symbol}
                       </span>
@@ -147,7 +147,7 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
         {/* Разделитель между суммой и остальным контентом */}
         <Divider 
           variant="gradient" 
-          color="default" 
+          color="primary" 
           size="small" 
           spacing="medium"
         />
@@ -190,7 +190,6 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
             currencies={filteredCurrencies}
             selectedCurrency={selectedCurrency}
             onCurrencySelect={handleCurrencySelect}
-            maxHeight="max-h-80"
             enableKeyboardNavigation={true}
             className="rounded-lg"
           />
