@@ -1,0 +1,80 @@
+/* Стили для отображения суммы вместо инпута */
+.custom-amount-display {
+  position: relative;
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+}
+
+.amount-display-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 56px;
+  background-color: rgba(1, 20, 15, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 0 16px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+.amount-display-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+}
+
+.amount-display-value {
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-align: left;
+  flex-grow: 1;
+}
+
+.amount-display-currency {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #10b981;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-left: 8px;
+  padding: 4px 8px;
+  background-color: rgba(16, 185, 129, 0.1);
+  border-radius: 8px;
+  backdrop-filter: blur(3px);
+}
+
+.currency-icon {
+  font-size: 1.2rem;
+}
+
+.currency-symbol {
+  font-size: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .amount-display-wrapper {
+    height: 48px;
+    padding: 0 12px;
+  }
+  
+  .amount-display-value {
+    font-size: 1rem;
+  }
+  
+  .amount-display-currency {
+    font-size: 0.9rem;
+    gap: 4px;
+    padding: 3px 6px;
+  }
+  
+  .currency-icon {
+    font-size: 1rem;
+  }
+}

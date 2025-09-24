@@ -5,6 +5,7 @@ import CustomTabs, { type TabItem } from './CustomTabs';
 import Divider from './Divider';
 import CurrencyCardList from './CurrencyCardList';
 import { type Currency, mockCurrencies, categoryLabels } from '../types/currency';
+import './CurrencyCard.css';
 
 interface CurrencyCardProps {
   title: string;
@@ -16,6 +17,8 @@ interface CurrencyCardProps {
   amount?: string;
   searchTerm?: string;
   activeFilter?: 'all' | 'fiat' | 'crypto' | 'payment';
+  readOnly?: boolean; // Режим только для чтения
+  displayOnly?: boolean; // Только отображение без инпута
 }
 
 type CategoryFilter = 'all' | 'fiat' | 'crypto' | 'payment';
@@ -57,7 +60,9 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
   selectedCurrency,
   amount = '',
   searchTerm = '',
-  activeFilter = 'all'
+  activeFilter = 'all',
+  readOnly = false,
+  displayOnly = false
 }) => {
 
   const filteredCurrencies = useMemo(() => {
@@ -103,16 +108,40 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
     <div className="w-full">
         <h2 className="text-center p-4 text-2xl font-bold">{title}</h2>
       <div className="space-y-4 p-4">
-        {/* Инпут суммы */}
+        {/* Инпут суммы или отображение */}
         <div className="space-y-2">
-          <CustomInput
-            variant="amount"
-            type="number"
-            placeholder="Введите сумму"
-            value={amount}
-            onChange={(value) => onAmountChange?.(value)}
-            selectedCurrency={selectedCurrency}
-          />
+          {displayOnly ? (
+            <div className="custom-amount-display">
+              <div className="amount-display-wrapper">
+                <div className="amount-display-content">
+                  <span className="amount-display-value">
+                    {amount || '0.000000'}
+                  </span>
+                  {selectedCurrency && (
+                    <div className="amount-display-currency">
+                      <span className="currency-symbol">
+                        {selectedCurrency.symbol}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <CustomInput
+              variant="amount"
+              type="number"
+              placeholder="Введите сумму"
+              value={amount}
+              onChange={(value) => {
+                if (!readOnly && onAmountChange) {
+                  onAmountChange(value);
+                }
+              }}
+              selectedCurrency={selectedCurrency}
+              readOnly={readOnly}
+            />
+          )}
         </div>
 
         {/* Разделитель между суммой и остальным контентом */}

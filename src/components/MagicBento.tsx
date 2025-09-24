@@ -3,6 +3,7 @@ import { gsap } from 'gsap';
 import { CiRepeat } from 'react-icons/ci';
 import CurrencyCard from './CurrencyCard';
 import type { Currency } from '../types/currency';
+import { convertCurrency } from '../types/exchangeRates';
 import './MagicBento.css';
 
 export interface BentoCardProps {
@@ -549,9 +550,10 @@ const MagicBento: React.FC<BentoProps> = ({
     setFromData(prev => ({ ...prev, activeFilter }));
   };
 
-  // Обработчики для второй карточки (toData)
-  const handleToAmountChange = (amount: string) => {
-    setToData(prev => ({ ...prev, amount }));
+  // Обработчики для второй карточки (toData) - только для отображения
+  const handleToAmountChange = () => {
+    // Не позволяем изменять сумму во второй карточке - она вычисляется автоматически
+    // setToData(prev => ({ ...prev, amount }));
   };
 
   const handleToCurrencySelect = (currency: Currency | undefined) => {
@@ -572,6 +574,30 @@ const MagicBento: React.FC<BentoProps> = ({
     setToData({ ...tempData });
   };
 
+  // Автоматическая конвертация при изменении суммы или валюты в первой карточке
+  useEffect(() => {
+    if (fromData.amount && fromData.currency && toData.currency) {
+      const amount = parseFloat(fromData.amount);
+      if (!isNaN(amount) && amount > 0) {
+        const convertedAmount = convertCurrency(
+          amount,
+          fromData.currency.id,
+          toData.currency.id
+        );
+        
+        if (convertedAmount !== null) {
+          setToData(prev => ({
+            ...prev,
+            amount: convertedAmount.toFixed(6) // Округляем до 6 знаков после запятой
+          }));
+        }
+      }
+    } else if (!fromData.amount || !fromData.currency || !toData.currency) {
+      // Очищаем сумму во второй карточке, если нет данных для конвертации
+      setToData(prev => ({ ...prev, amount: '' }));
+    }
+  }, [fromData.amount, fromData.currency, toData.currency]);
+
 
   return (
     <>
@@ -586,16 +612,16 @@ const MagicBento: React.FC<BentoProps> = ({
       )}
 
       <div className="bento-section-wrapper">
-        <BentoCardGrid gridRef={gridRef}>
-          {cardData.map((card, index) => {
-            const baseClassName = `card ${textAutoHide ? 'card--text-autohide' : ''} ${enableBorderGlow ? 'card--border-glow' : ''}`;
-            const cardProps = {
-              className: baseClassName,
-              style: {
-                backgroundColor: card.color,
-                '--glow-color': glowColor
-              } as React.CSSProperties
-            };
+      <BentoCardGrid gridRef={gridRef}>
+        {cardData.map((card, index) => {
+          const baseClassName = `card ${textAutoHide ? 'card--text-autohide' : ''} ${enableBorderGlow ? 'card--border-glow' : ''}`;
+          const cardProps = {
+            className: baseClassName,
+            style: {
+              backgroundColor: card.color,
+              '--glow-color': glowColor
+            } as React.CSSProperties
+          };
 
             const finalCardProps = (index === 0 || index === 1) ? {
               ...cardProps,
@@ -624,16 +650,18 @@ const MagicBento: React.FC<BentoProps> = ({
                     selectedCurrency={index === 0 ? fromData.currency : toData.currency}
                     searchTerm={index === 0 ? fromData.searchTerm : toData.searchTerm}
                     activeFilter={index === 0 ? fromData.activeFilter : toData.activeFilter}
+                    readOnly={false} // Первая карточка редактируемая
+                    displayOnly={index === 1} // Вторая карточка только для отображения
                   />
                 ) : (
                   <>
-                    <div className="card__header">
-                      <div className="card__label">{card.label}</div>
-                    </div>
-                    <div className="card__content">
-                      <h2 className="card__title">{card.title}</h2>
-                      <p className="card__description">{card.description}</p>
-                    </div>
+                <div className="card__header">
+                  <div className="card__label">{card.label}</div>
+                </div>
+                <div className="card__content">
+                  <h2 className="card__title">{card.title}</h2>
+                  <p className="card__description">{card.description}</p>
+                </div>
                   </>
                 )}
               </ParticleCard>
@@ -650,8 +678,8 @@ const MagicBento: React.FC<BentoProps> = ({
           >
             <CiRepeat size={24} />
           </button>
-        </div>
-      </div>
+              </div>
+            </div>
     </>
   );
 };

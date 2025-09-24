@@ -9,6 +9,7 @@ interface BaseInputProps {
   placeholder: string;
   className?: string;
   type?: 'text' | 'number';
+  readOnly?: boolean;
 }
 
 interface CurrencyAmountInputProps extends BaseInputProps {
@@ -26,17 +27,24 @@ const CustomInput: React.FC<CustomInputProps> = (props) => {
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { value, onChange, placeholder, className = '', type = 'text' } = props;
+  const { value, onChange, placeholder, className = '', type = 'text', readOnly = false } = props;
 
   const handleClear = () => {
-    onChange('');
-    inputRef.current?.focus();
+    if (!readOnly) {
+      onChange('');
+      inputRef.current?.focus();
+    }
   };
 
-  const handleFocus = () => setIsFocused(true);
+  const handleFocus = () => {
+    if (!readOnly) {
+      setIsFocused(true);
+    }
+  };
+  
   const handleBlur = () => setIsFocused(false);
 
-  const showClearButton = value.length > 0;
+  const showClearButton = value.length > 0 && !readOnly;
   const showPlaceholder = !isFocused && value.length === 0;
 
   return (
@@ -59,6 +67,7 @@ const CustomInput: React.FC<CustomInputProps> = (props) => {
           onBlur={handleBlur}
           className="custom-input-field"
           placeholder=""
+          readOnly={readOnly}
         />
 
         {/* Контролы справа */}
@@ -78,11 +87,6 @@ const CustomInput: React.FC<CustomInputProps> = (props) => {
           {/* Информация о валюте (только для amount варианта) */}
           {props.variant === 'amount' && props.selectedCurrency && (
             <div className="custom-input-currency">
-              {props.selectedCurrency.icon && (
-                <span className="currency-icon">
-                  {props.selectedCurrency.icon}
-                </span>
-              )}
               <span className="currency-symbol">
                 {props.selectedCurrency.symbol}
               </span>

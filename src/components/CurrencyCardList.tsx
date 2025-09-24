@@ -33,7 +33,7 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
         className={`
           group relative overflow-hidden rounded-lg transition-all duration-300 cursor-pointer backdrop-blur-sm
           ${isSelected 
-            ? 'border-2 border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-500/20' 
+            ? 'border-1 border-emerald-500 bg-emerald-500/10' 
             : isHovered
               ? 'border border-white/10 bg-white/10'
               : 'border border-white/10 bg-white/5'
