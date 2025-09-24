@@ -5,6 +5,7 @@ import { useTelegramApp } from '@/utils/useTelegramApp';
 import { Context, type IStoreContext } from '@/store/StoreProvider';
 import LoadingIndicator from '@/components/LoadingIndicator';
 import Navigation from '@/components/Navigation/Navigation';
+import Footer from '@/components/Footer';
 
 const AppRouter = lazy(() => import("@/router/AppRouter"));
 
@@ -59,7 +60,7 @@ const App = observer(() => {
     };
 
     authenticate();
-  }, [user]);
+  }, [user, tg?.initData]);
 
   if (loading) {
     return <LoadingIndicator />;
@@ -68,13 +69,16 @@ const App = observer(() => {
 
   return (
       <BrowserRouter>
-        <div className='w-full flex justify-center items-center lg:pt-8 pt-4 lg:px-8 px-4'>
-        <Navigation />
-        </div>
-        <div>
+        <div className="min-h-screen flex flex-col">
+          <div className='w-full flex justify-center items-center lg:pt-8 pt-4 lg:px-8 px-4'>
+            <Navigation />
+          </div>
+          <div className="flex-1">
             <Suspense fallback={<LoadingIndicator />}>
               <AppRouter />
             </Suspense>
+          </div>
+          <Footer />
         </div>
       </BrowserRouter>
   )

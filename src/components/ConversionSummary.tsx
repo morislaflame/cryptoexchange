@@ -52,7 +52,7 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = ({
           {/* Отдаете */}
           <div className="p-5 bg-white/5 border border-white/10 rounded-xl">
             <div className="flex items-center justify-between gap-4">
-              <div className="text-white text-2xl font-bold flex-grow">
+              <div className="text-white text-xl font-bold flex-grow">
                 {formatAmount(fromAmount)}
               </div>
               {fromCurrency && (
@@ -77,7 +77,7 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = ({
           {/* Получаете */}
           <div className="p-5 bg-white/5 border border-white/10 rounded-xl">
             <div className="flex items-center justify-between gap-4">
-              <div className="text-white text-2xl font-bold flex-grow">
+              <div className="text-white text-xl font-bold flex-grow">
                 {formatAmount(toAmount)}
               </div>
               {toCurrency && (

@@ -3,7 +3,7 @@
   --sat: 69%;
   --white: hsl(0, 0%, 100%);
   --purple-primary: #10b981;
-  --purple-glow: #021a14;
+  --purple-glow: #000604;
   --purple-border: #103527;
   --border-color: #05966874;
   --background-dark: #022c22;
@@ -205,9 +205,9 @@
   }
 
   .swap-icon-container {
-    top: 50%;
-    right: 20px;
-    transform: translateY(-50%);
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 
   .swap-icon-button {

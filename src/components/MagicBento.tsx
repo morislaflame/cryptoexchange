@@ -624,59 +624,90 @@ const MagicBento: React.FC<BentoProps> = ({
       )}
 
       <div className="bento-section-wrapper">
-      <BentoCardGrid gridRef={gridRef}>
-        {cardData.map((card, index) => {
-          const baseClassName = `card ${textAutoHide ? 'card--text-autohide' : ''} ${enableBorderGlow ? 'card--border-glow' : ''}`;
-          const cardProps = {
-            className: baseClassName,
-            style: {
-              backgroundColor: card.color,
+        <BentoCardGrid gridRef={gridRef}>
+          {/* Первая карточка - Отдаете */}
+          <ParticleCard
+            key="from-card"
+            className={`card currency-exchange-card ${textAutoHide ? 'card--text-autohide' : ''} ${enableBorderGlow ? 'card--border-glow' : ''}`}
+            style={{
+              backgroundColor: cardData[0]?.color,
               '--glow-color': glowColor
-            } as React.CSSProperties
-          };
+            } as React.CSSProperties}
+            disableAnimations={shouldDisableAnimations}
+            particleCount={particleCount}
+            glowColor={glowColor}
+            enableTilt={enableTilt}
+            clickEffect={clickEffect}
+            enableMagnetism={enableMagnetism}
+          >
+            <CurrencyCard
+              title="Отдаете"
+              onAmountChange={handleFromAmountChange}
+              onCurrencySelect={handleFromCurrencySelect}
+              onSearchChange={handleFromSearchChange}
+              onFilterChange={handleFromFilterChange}
+              amount={fromData.amount}
+              selectedCurrency={fromData.currency}
+              searchTerm={fromData.searchTerm}
+              activeFilter={fromData.activeFilter}
+              readOnly={false}
+              displayOnly={false}
+            />
+          </ParticleCard>
 
-            const finalCardProps = (index === 0 || index === 1 || index === 2) ? {
-              ...cardProps,
-              className: `${cardProps.className} currency-exchange-card`
-            } : cardProps;
+          {/* Вторая карточка - Получаете */}
+          <ParticleCard
+            key="to-card"
+            className={`card currency-exchange-card ${textAutoHide ? 'card--text-autohide' : ''} ${enableBorderGlow ? 'card--border-glow' : ''}`}
+            style={{
+              backgroundColor: cardData[1]?.color,
+              '--glow-color': glowColor
+            } as React.CSSProperties}
+            disableAnimations={shouldDisableAnimations}
+            particleCount={particleCount}
+            glowColor={glowColor}
+            enableTilt={enableTilt}
+            clickEffect={clickEffect}
+            enableMagnetism={enableMagnetism}
+          >
+            <CurrencyCard
+              title="Получаете"
+              onAmountChange={handleToAmountChange}
+              onCurrencySelect={handleToCurrencySelect}
+              onSearchChange={handleToSearchChange}
+              onFilterChange={handleToFilterChange}
+              amount={toData.amount}
+              selectedCurrency={toData.currency}
+              searchTerm={toData.searchTerm}
+              activeFilter={toData.activeFilter}
+              readOnly={false}
+              displayOnly={true}
+            />
+          </ParticleCard>
 
-            return (
-              <ParticleCard
-                key={index}
-                {...finalCardProps}
-                disableAnimations={shouldDisableAnimations}
-                particleCount={particleCount}
-                glowColor={glowColor}
-                enableTilt={enableTilt}
-                clickEffect={clickEffect}
-                enableMagnetism={enableMagnetism}
-              >
-                {(index === 0 || index === 1) ? (
-                  <CurrencyCard
-                    title={index === 0 ? "Отдаете" : "Получаете"}
-                    onAmountChange={index === 0 ? handleFromAmountChange : handleToAmountChange}
-                    onCurrencySelect={index === 0 ? handleFromCurrencySelect : handleToCurrencySelect}
-                    onSearchChange={index === 0 ? handleFromSearchChange : handleToSearchChange}
-                    onFilterChange={index === 0 ? handleFromFilterChange : handleToFilterChange}
-                    amount={index === 0 ? fromData.amount : toData.amount}
-                    selectedCurrency={index === 0 ? fromData.currency : toData.currency}
-                    searchTerm={index === 0 ? fromData.searchTerm : toData.searchTerm}
-                    activeFilter={index === 0 ? fromData.activeFilter : toData.activeFilter}
-                    readOnly={false} // Первая карточка редактируемая
-                    displayOnly={index === 1} // Вторая карточка только для отображения
-                  />
-                ) : (
-                  <ConversionSummary
-                    fromCurrency={fromData.currency}
-                    toCurrency={toData.currency}
-                    fromAmount={fromData.amount}
-                    toAmount={toData.amount}
-                    onCreateOrder={handleCreateOrder}
-                  />
-                )}
-              </ParticleCard>
-            );
-          })}
+          {/* Третья карточка - Итоги конвертации */}
+          <ParticleCard
+            key="summary-card"
+            className={`card currency-exchange-card ${textAutoHide ? 'card--text-autohide' : ''} ${enableBorderGlow ? 'card--border-glow' : ''}`}
+            style={{
+              backgroundColor: cardData[2]?.color,
+              '--glow-color': glowColor
+            } as React.CSSProperties}
+            disableAnimations={shouldDisableAnimations}
+            particleCount={particleCount}
+            glowColor={glowColor}
+            enableTilt={enableTilt}
+            clickEffect={clickEffect}
+            enableMagnetism={enableMagnetism}
+          >
+            <ConversionSummary
+              fromCurrency={fromData.currency}
+              toCurrency={toData.currency}
+              fromAmount={fromData.amount}
+              toAmount={toData.amount}
+              onCreateOrder={handleCreateOrder}
+            />
+          </ParticleCard>
         </BentoCardGrid>
 
         {/* Иконка обмена абсолютно позиционирована */}

@@ -1,5 +1,5 @@
 import MagicBento from "@/components/MagicBento";
-import MainGrid from "@/components/MainPageComponents/MainGrid";
+// import MainGrid from "@/components/MainPageComponents/MainGrid";
 
 const MainPage = () => {
     return (
@@ -18,7 +18,7 @@ const MainPage = () => {
                     
                 />
             </div>  
-            <MainGrid />
+            {/* <MainGrid /> */}
         </div>
     )
 }

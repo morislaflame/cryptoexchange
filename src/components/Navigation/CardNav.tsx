@@ -1,7 +1,5 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
-// use your own icon import if react-icons is not available
-import { GoArrowUpRight } from 'react-icons/go';
 import './CardNav.css';
 
 type CardNavLink = {
@@ -14,6 +12,8 @@ export type CardNavItem = {
   label: string;
   bgColor: string;
   textColor: string;
+  description: string;
+  href: string;
   links: CardNavLink[];
 };
 
@@ -41,10 +41,10 @@ const CardNav: React.FC<CardNavProps> = ({
   const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const navRef = useRef<HTMLDivElement | null>(null);
-  const cardsRef = useRef<HTMLDivElement[]>([]);
+  const cardsRef = useRef<HTMLAnchorElement[]>([]);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
 
-  const calculateHeight = () => {
+  const calculateHeight = useCallback(() => {
     const navEl = navRef.current;
     if (!navEl) return 260;
 
@@ -62,7 +62,8 @@ const CardNav: React.FC<CardNavProps> = ({
         contentEl.style.position = 'static';
         contentEl.style.height = 'auto';
 
-        contentEl.offsetHeight;
+        // Принудительный пересчет layout
+        void contentEl.offsetHeight;
 
         const topBar = 60;
         const padding = 16;
@@ -77,9 +78,9 @@ const CardNav: React.FC<CardNavProps> = ({
       }
     }
     return 260;
-  };
+  }, []);
 
-  const createTimeline = () => {
+  const createTimeline = useCallback(() => {
     const navEl = navRef.current;
     if (!navEl) return null;
 
@@ -97,7 +98,7 @@ const CardNav: React.FC<CardNavProps> = ({
     tl.to(cardsRef.current, { y: 0, opacity: 1, duration: 0.4, ease, stagger: 0.08 }, '-=0.1');
 
     return tl;
-  };
+  }, [ease, calculateHeight]);
 
   useLayoutEffect(() => {
     const tl = createTimeline();
@@ -107,7 +108,7 @@ const CardNav: React.FC<CardNavProps> = ({
       tl?.kill();
       tlRef.current = null;
     };
-  }, [ease, items]);
+  }, [createTimeline]);
 
   useLayoutEffect(() => {
     const handleResize = () => {
@@ -134,7 +135,7 @@ const CardNav: React.FC<CardNavProps> = ({
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [isExpanded]);
+  }, [isExpanded, calculateHeight, createTimeline]);
 
   const toggleMenu = () => {
     const tl = tlRef.current;
@@ -150,7 +151,7 @@ const CardNav: React.FC<CardNavProps> = ({
     }
   };
 
-  const setCardRef = (i: number) => (el: HTMLDivElement | null) => {
+  const setCardRef = (i: number) => (el: HTMLAnchorElement | null) => {
     if (el) cardsRef.current[i] = el;
   };
 
@@ -158,11 +159,25 @@ const CardNav: React.FC<CardNavProps> = ({
     <div className={`card-nav-container ${className}`}>
       <nav ref={navRef} className={`card-nav ${isExpanded ? 'open' : ''}`} style={{ backgroundColor: baseColor }}>
         <div className="card-nav-top">
-          
-
           <div className="logo-container">
             <img src={logo} alt={logoAlt} className="logo" />
           </div>
+
+          {/* Ссылки с заголовками разделов - показываются только в свернутом состоянии */}
+          {!isExpanded && (
+            <div className="nav-section-links">
+              {items.map((item, idx) => (
+                <a 
+                  key={`section-${idx}`}
+                  href="#" 
+                  className="nav-section-link"
+                  style={{ color: menuColor || '#fff' }}
+                >
+                  {item.label}
+                </a>
+              ))}
+            </div>
+          )}
 
           <div
             className={`hamburger-menu ${isHamburgerOpen ? 'open' : ''}`}
@@ -179,22 +194,18 @@ const CardNav: React.FC<CardNavProps> = ({
 
         <div className="card-nav-content" aria-hidden={!isExpanded}>
           {(items || []).slice(0, 3).map((item, idx) => (
-            <div
+            <a
               key={`${item.label}-${idx}`}
-              className="nav-card"
+              className="nav-card bg-white/5 border border-white/10"
               ref={setCardRef(idx)}
-              // style={{ backgroundColor: item.bgColor, color: item.textColor }}
+              href={item.href}
+              style={{ color: item.textColor }}
             >
               <div className="nav-card-label">{item.label}</div>
-              <div className="nav-card-links">
-                {item.links?.map((lnk, i) => (
-                  <a key={`${lnk.label}-${i}`} className="nav-card-link" href={lnk.href} aria-label={lnk.ariaLabel}>
-                    <GoArrowUpRight className="nav-card-link-icon" aria-hidden="true" />
-                    {lnk.label}
-                  </a>
-                ))}
+              <div className="nav-card-description">
+                {item.description}
               </div>
-            </div>
+            </a>
           ))}
         </div>
       </nav>
