@@ -1,17 +1,21 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { GoShieldCheck, GoArrowSwitch } from 'react-icons/go';
-import AnimatedList from './AnimatedList';
 import CustomInput from './CustomInput';
 import CustomTabs, { type TabItem } from './CustomTabs';
 import Divider from './Divider';
+import CurrencyCardList from './CurrencyCardList';
 import { type Currency, mockCurrencies, categoryLabels } from '../types/currency';
 
 interface CurrencyCardProps {
   title: string;
-  onCurrencySelect?: (currency: Currency) => void;
+  onCurrencySelect?: (currency: Currency | undefined) => void;
   onAmountChange?: (amount: string) => void;
+  onSearchChange?: (searchTerm: string) => void;
+  onFilterChange?: (activeFilter: 'all' | 'fiat' | 'crypto' | 'payment') => void;
   selectedCurrency?: Currency;
   amount?: string;
+  searchTerm?: string;
+  activeFilter?: 'all' | 'fiat' | 'crypto' | 'payment';
 }
 
 type CategoryFilter = 'all' | 'fiat' | 'crypto' | 'payment';
@@ -48,11 +52,13 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
   title,
   onCurrencySelect,
   onAmountChange,
+  onSearchChange,
+  onFilterChange,
   selectedCurrency,
-  amount = ''
+  amount = '',
+  searchTerm = '',
+  activeFilter = 'all'
 }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [activeFilter, setActiveFilter] = useState<CategoryFilter>('all');
 
   const filteredCurrencies = useMemo(() => {
     let filtered = mockCurrencies;
@@ -73,16 +79,24 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
     return filtered;
   }, [searchTerm, activeFilter]);
 
-  const currencyListItems = filteredCurrencies.map(currency => 
-    `${currency.symbol} - ${currency.name}`
-  );
-
-  const handleCurrencySelect = (_item: string, index: number) => {
-    const selectedCurrency = filteredCurrencies[index];
-    if (onCurrencySelect) {
-      onCurrencySelect(selectedCurrency);
+  const handleCurrencySelect = (currency: Currency, index: number) => {
+    if (index === -1) {
+      // Сброс выбора
+      if (onCurrencySelect) {
+        onCurrencySelect(undefined);
+      }
+      if (onSearchChange) {
+        onSearchChange(''); // Очищаем поисковый термин
+      }
+    } else {
+      // Обычный выбор
+      if (onCurrencySelect) {
+        onCurrencySelect(currency);
+      }
+      if (onSearchChange) {
+        onSearchChange(currency.symbol);
+      }
     }
-    setSearchTerm(selectedCurrency.symbol);
   };
 
   return (
@@ -110,41 +124,46 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
         />
 
         <div className="space-y-2">
-          <CustomTabs
-            items={createTabItems()}
-            activeTab={activeFilter}
-            onTabChange={(value) => setActiveFilter(value as CategoryFilter)}
-            size="medium"
-            variant="default"
-            color="success"
-            fullWidth={true}
-          />
+            <CustomTabs
+              items={createTabItems()}
+              activeTab={activeFilter}
+              onTabChange={(value) => {
+                const newFilter = value as CategoryFilter;
+                if (onFilterChange) {
+                  onFilterChange(newFilter);
+                }
+              }}
+              size="medium"
+              variant="default"
+              color="success"
+              fullWidth={true}
+            />
         </div>
 
         {/* Инпут валюты */}
-        <div className="space-y-2">
+        <div className="space-y-4 mb-4">
           <CustomInput
             variant="search"
             type="text"
             placeholder="Введите название валюты"
             value={searchTerm}
-            onChange={(value) => setSearchTerm(value)}
+            onChange={(value) => {
+              if (onSearchChange) {
+                onSearchChange(value);
+              }
+            }}
           />
         </div>
 
-        {/* Табы фильтрации */}
-        
-
         {/* Список валют */}
         <div className="space-y-2">
-          <AnimatedList
-            items={currencyListItems}
-            onItemSelect={handleCurrencySelect}
-            showGradients={true}
-            enableArrowNavigation={true}
-            className="currency-list"
-            itemClassName="currency-item"
-            displayScrollbar={true}
+          <CurrencyCardList
+            currencies={filteredCurrencies}
+            selectedCurrency={selectedCurrency}
+            onCurrencySelect={handleCurrencySelect}
+            maxHeight="max-h-80"
+            enableKeyboardNavigation={true}
+            className="rounded-lg"
           />
         </div>
       </div>    

@@ -55,11 +55,11 @@ const CustomTabs: React.FC<CustomTabsProps> = ({
             disabled={item.disabled}
             data-value={item.value}
           >
-            {item.icon && (
+            {/* {item.icon && (
               <span className="tab-icon">
                 {item.icon}
               </span>
-            )}
+            )} */}
             <span className="tab-label">
               {item.label}
             </span>

@@ -513,24 +513,57 @@ const MagicBento: React.FC<BentoProps> = ({
   const isMobile = useMobileDetection();
   const shouldDisableAnimations = disableAnimations || isMobile;
 
-  // Состояние для обмена валют
-  const [fromData, setFromData] = useState<{amount: string; currency?: Currency}>({ amount: '' });
-  const [toData, setToData] = useState<{amount: string; currency?: Currency}>({ amount: '' });
+  // Расширенное состояние для обеих карточек
+  interface CardState {
+    amount: string;
+    currency?: Currency;
+    searchTerm: string;
+    activeFilter: 'all' | 'fiat' | 'crypto' | 'payment';
+  }
 
+  const [fromData, setFromData] = useState<CardState>({ 
+    amount: '', 
+    searchTerm: '', 
+    activeFilter: 'all' 
+  });
+  const [toData, setToData] = useState<CardState>({ 
+    amount: '', 
+    searchTerm: '', 
+    activeFilter: 'all' 
+  });
+
+  // Обработчики для первой карточки (fromData)
   const handleFromAmountChange = (amount: string) => {
     setFromData(prev => ({ ...prev, amount }));
   };
 
-  const handleFromCurrencySelect = (currency: Currency) => {
+  const handleFromCurrencySelect = (currency: Currency | undefined) => {
     setFromData(prev => ({ ...prev, currency }));
   };
 
+  const handleFromSearchChange = (searchTerm: string) => {
+    setFromData(prev => ({ ...prev, searchTerm }));
+  };
+
+  const handleFromFilterChange = (activeFilter: 'all' | 'fiat' | 'crypto' | 'payment') => {
+    setFromData(prev => ({ ...prev, activeFilter }));
+  };
+
+  // Обработчики для второй карточки (toData)
   const handleToAmountChange = (amount: string) => {
     setToData(prev => ({ ...prev, amount }));
   };
 
-  const handleToCurrencySelect = (currency: Currency) => {
+  const handleToCurrencySelect = (currency: Currency | undefined) => {
     setToData(prev => ({ ...prev, currency }));
+  };
+
+  const handleToSearchChange = (searchTerm: string) => {
+    setToData(prev => ({ ...prev, searchTerm }));
+  };
+
+  const handleToFilterChange = (activeFilter: 'all' | 'fiat' | 'crypto' | 'payment') => {
+    setToData(prev => ({ ...prev, activeFilter }));
   };
 
   const handleSwapCurrencies = () => {
@@ -585,8 +618,12 @@ const MagicBento: React.FC<BentoProps> = ({
                     title={index === 0 ? "Отдаете" : "Получаете"}
                     onAmountChange={index === 0 ? handleFromAmountChange : handleToAmountChange}
                     onCurrencySelect={index === 0 ? handleFromCurrencySelect : handleToCurrencySelect}
+                    onSearchChange={index === 0 ? handleFromSearchChange : handleToSearchChange}
+                    onFilterChange={index === 0 ? handleFromFilterChange : handleToFilterChange}
                     amount={index === 0 ? fromData.amount : toData.amount}
                     selectedCurrency={index === 0 ? fromData.currency : toData.currency}
+                    searchTerm={index === 0 ? fromData.searchTerm : toData.searchTerm}
+                    activeFilter={index === 0 ? fromData.activeFilter : toData.activeFilter}
                   />
                 ) : (
                   <>
