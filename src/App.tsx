@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { useTelegramApp } from '@/utils/useTelegramApp';
 import { Context, type IStoreContext } from '@/store/StoreProvider';
 import LoadingIndicator from '@/components/LoadingIndicator';
+import Navigation from '@/components/Navigation/Navigation';
 
 const AppRouter = lazy(() => import("@/router/AppRouter"));
 
@@ -67,6 +68,9 @@ const App = observer(() => {
 
   return (
       <BrowserRouter>
+        <div className='w-full flex justify-center items-center pt-8 px-8'>
+        <Navigation />
+        </div>
         <div>
             <Suspense fallback={<LoadingIndicator />}>
               <AppRouter />
