@@ -3,7 +3,7 @@ import { BrowserRouter } from "react-router-dom";
 import { observer } from 'mobx-react-lite';
 import { useTelegramApp } from '@/utils/useTelegramApp';
 import { Context, type IStoreContext } from '@/store/StoreProvider';
-import LoadingIndicator from '@/components/LoadingIndicator';
+import LoadingIndicator from '@/components/ui/LoadingIndicator';
 import Navigation from '@/components/Navigation/Navigation';
 import Footer from '@/components/Footer';
 
@@ -70,7 +70,7 @@ const App = observer(() => {
   return (
       <BrowserRouter>
         <div className="min-h-screen flex flex-col">
-          <div className='w-full flex justify-center items-center lg:pt-8 pt-4 lg:px-8 px-4'>
+          <div className='w-full flex justify-center items-center lg:pt-8 pt-4 lg:px-8 px-4 z-10'>
             <Navigation />
           </div>
           <div className="flex-1">

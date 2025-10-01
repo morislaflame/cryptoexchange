@@ -1,10 +1,10 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { gsap } from 'gsap';
 import { CiRepeat } from 'react-icons/ci';
-import CurrencyCard from './CurrencyCard';
-import ConversionSummary from './ConversionSummary';
-import type { Currency } from '../types/currency';
-import { convertCurrency } from '../types/exchangeRates';
+import CurrencyCard from '../MainPageComponents/CurrencyCard';
+import ConversionSummary from '../MainPageComponents/ConversionSummary';
+import type { Currency } from '../../types/currency';
+import { convertCurrency } from '../../types/exchangeRates';
 import './MagicBento.css';
 
 export interface BentoCardProps {

@@ -11,7 +11,7 @@
 
 .card-nav {
   display: block;
-  height: 40px;
+  height: 60px;
   padding: 0;
   border: 1px solid #05966874;
   border-radius: 0.75rem;
@@ -29,7 +29,7 @@
   top: 0;
   left: 0;
   right: 0;
-  /* height: 60px; */
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: space-between;

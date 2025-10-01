@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 import { GoShieldCheck, GoArrowSwitch } from 'react-icons/go';
-import CustomInput from './CustomInput';
-import CustomTabs, { type TabItem } from './CustomTabs';
-import Divider from './Divider';
+import CustomInput from '../ui/CustomInput';
+import CustomTabs, { type TabItem } from '../ui/CustomTabs';
+import Divider from '../ui/Divider';
 import CurrencyCardList from './CurrencyCardList';
-import { type Currency, mockCurrencies, categoryLabels } from '../types/currency';
+import { type Currency, mockCurrencies, categoryLabels } from '../../types/currency';
 import './CurrencyCard.css';
 
 interface CurrencyCardProps {

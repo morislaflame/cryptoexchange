@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { GoX } from 'react-icons/go';
-import type { Currency } from '../types/currency';
+import type { Currency } from '../../types/currency';
 import './CustomInput.css';
 
 interface BaseInputProps {

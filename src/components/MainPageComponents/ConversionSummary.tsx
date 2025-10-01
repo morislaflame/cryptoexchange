@@ -1,8 +1,8 @@
 import React from 'react';
 import { CiRepeat } from 'react-icons/ci';
-import Divider from './Divider';
-import { type Currency } from '../types/currency';
-import { getExchangeRate } from '../types/exchangeRates';
+import Divider from '../ui/Divider';
+import { type Currency } from '../../types/currency';
+import { getExchangeRate } from '../../types/exchangeRates';
 
 interface ConversionSummaryProps {
   fromCurrency?: Currency;

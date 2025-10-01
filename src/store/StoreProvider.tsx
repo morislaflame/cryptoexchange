@@ -1,9 +1,11 @@
-import { createContext, useState, useEffect, type ReactNode } from "react";
-import LoadingIndicator from "../components/LoadingIndicator";
+import { createContext, useState, useEffect, useContext, type ReactNode } from "react";
+import LoadingIndicator from "../components/ui/LoadingIndicator";
 import UserStore from "@/store/UserStore";
+import ChatStore from "@/store/ChatStore";
 // Определяем интерфейс для нашего контекста
 export interface IStoreContext {
   user: UserStore;
+  chat: ChatStore;
 }
 
 let storeInstance: IStoreContext | null = null;
@@ -14,6 +16,15 @@ export function getStore(): IStoreContext {
     throw new Error("Store not initialized");
   }
   return storeInstance;
+}
+
+// Хук для использования сторов в компонентах
+export function useStore(): IStoreContext {
+  const context = useContext(Context);
+  if (!context) {
+    throw new Error("useStore must be used within a StoreProvider");
+  }
+  return context;
 }
 
 // Создаем контекст с начальным значением null, но указываем правильный тип
@@ -27,18 +38,22 @@ interface StoreProviderProps {
 const StoreProvider = ({ children }: StoreProviderProps) => {
   const [stores, setStores] = useState<{
     user: UserStore;
+    chat: ChatStore;
   } | null>(null);
 
   useEffect(() => {
     const loadStores = async () => {
       const [
         { default: UserStore },
+        { default: ChatStore },
       ] = await Promise.all([
         import("@/store/UserStore"),
+        import("@/store/ChatStore"),
       ]);
 
       setStores({
         user: new UserStore(),
+        chat: new ChatStore(),
       });
     };
 

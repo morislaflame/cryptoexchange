@@ -47,6 +47,7 @@ const Navigation = () => {
       baseColor="#01130e"
       menuColor="#fff"
       ease="power3.out"
+      className="z-10"
     />
   );
 };
