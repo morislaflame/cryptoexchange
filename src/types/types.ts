@@ -6,12 +6,20 @@ export interface UserInfo {
 }
 
 export interface ChatMessage {
-    id: string;
+    id: number;
     text: string;
-    sender: 'user' | 'admin';
-    timestamp: Date;
-    isRead?: boolean;
-    chatId?: number;
+    senderType: 'USER' | 'ADMIN';
+    isRead: boolean;
+    readAt: string | null;
+    createdAt: string;
+    updatedAt: string;
+    chatId: number;
+    userId: number;
+    user?: {
+        id: number;
+        email?: string;
+        role: string;
+    };
 }
 
 export interface ChatState {

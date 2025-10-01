@@ -1,12 +1,17 @@
 import React from 'react';
+import { observer } from 'mobx-react-lite';
+import { useStore } from '@/store/StoreProvider';
 import { type ChatMessage as ChatMessageType } from '@/types/types';
 
 interface ChatMessageProps {
     message: ChatMessageType;
 }
 
-const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
-    const isUser = message.sender === 'user';
+const ChatMessage: React.FC<ChatMessageProps> = observer(({ message }) => {
+    const { user: userStore } = useStore();
+    
+    // Определяем, является ли сообщение от текущего пользователя
+    const isUser = message.userId === userStore.user?.id;
 
     const formatTime = (timestamp: Date | string | undefined) => {
         if (!timestamp) return '';
@@ -33,12 +38,12 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                         {message.text}
                     </p>
                     <div className={`text-xs text-white/60 ${isUser ? 'text-right' : 'text-left'}`}>
-                        {formatTime(message.timestamp)}
+                        {formatTime(message.createdAt)}
                     </div>
                 </div>
             </div>
         </div>
     );
-};
+});
 
 export default ChatMessage;

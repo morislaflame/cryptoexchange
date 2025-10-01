@@ -7,11 +7,11 @@ import {
 } from '@/components/ui/dialog';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '@/store/StoreProvider';
-import { type ChatMessage } from '@/types/types';
 import ChatHeader from './ChatHeader';
 import ChatMessages from './ChatMessages';
 import ChatInput from './ChatInput';
 import { io, Socket } from 'socket.io-client';
+import { type ChatMessage } from '@/types/types';
 
 interface ChatModalProps {
     isOpen: boolean;
@@ -127,7 +127,7 @@ const ChatModal: React.FC<ChatModalProps> = observer(({ isOpen, onClose }) => {
         }
     }, [chat.currentChat?.id, isConnected]);
 
-    const handleSendMessage = (message: ChatMessage) => {
+    const handleSendMessage = (text: string) => {
         if (!chat.currentChat?.id) {
             console.error('No active chat');
             return;
@@ -139,10 +139,10 @@ const ChatModal: React.FC<ChatModalProps> = observer(({ isOpen, onClose }) => {
             return;
         }
 
-        console.log('Sending message:', message.text);
+        console.log('Sending message:', text);
         socketRef.current.emit('send_message', {
             chatId: chat.currentChat.id,
-            text: message.text,
+            text: text,
         });
     };
 

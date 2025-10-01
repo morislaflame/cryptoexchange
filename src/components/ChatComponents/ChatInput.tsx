@@ -1,9 +1,8 @@
 import React, { useState, useRef, type KeyboardEvent } from 'react';
-import { type ChatMessage } from '@/types/types';
 import { observer } from 'mobx-react-lite';
 
 interface ChatInputProps {
-    onSendMessage: (message: ChatMessage) => void;
+    onSendMessage: (text: string) => void;
     disabled?: boolean;
 }
 
@@ -13,14 +12,7 @@ const ChatInput: React.FC<ChatInputProps> = observer(({ onSendMessage, disabled 
 
     const handleSendMessage = () => {
         if (message.trim() && !disabled) {
-            const newMessage: ChatMessage = {
-                id: Date.now().toString(),
-                text: message.trim(),
-                sender: 'user',
-                timestamp: new Date(),
-                isRead: false
-            };
-            onSendMessage(newMessage);
+            onSendMessage(message.trim());
             setMessage('');
 
             // Автофокус на textarea после отправки
