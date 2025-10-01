@@ -169,7 +169,7 @@ const CardNav: React.FC<CardNavProps> = ({
               {items.map((item, idx) => (
                 <a 
                   key={`section-${idx}`}
-                  href="#" 
+                  href={item.href} 
                   className="nav-section-link"
                   style={{ color: menuColor || '#fff' }}
                 >

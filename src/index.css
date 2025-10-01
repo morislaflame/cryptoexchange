@@ -127,6 +127,12 @@
   }
 }
 
+body {
+  @apply bg-gradient-to-br from-emerald-950 via-black to-emerald-950;
+  min-height: 100vh;
+  min-width: 100vw;
+  overflow-x: hidden;
+}
 
 .hide-scrollbar::-webkit-scrollbar {
   display: none;

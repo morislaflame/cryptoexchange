@@ -50,3 +50,26 @@ export const getUnreadCount = async (): Promise<{ unreadCount: number }> => {
     const { data } = await $authHost.get('api/chat/unread/count');
     return data;
 };
+
+// Админские методы
+export const getActiveChatsAdmin = async (): Promise<Chat[]> => {
+    const { data } = await $authHost.get('api/chat/admin/active');
+    return data;
+};
+
+export const getChatMessagesAdmin = async (chatId: number, limit: number = 50): Promise<ChatMessage[]> => {
+    const { data } = await $authHost.get(`api/chat/admin/${chatId}/messages`, {
+        params: { limit }
+    });
+    return data;
+};
+
+export const getChatStatsAdmin = async (): Promise<{
+    totalChats: number;
+    activeChats: number;
+    totalMessages: number;
+    unreadMessages: number;
+}> => {
+    const { data } = await $authHost.get('api/chat/admin/stats');
+    return data;
+};

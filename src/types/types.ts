@@ -1,7 +1,8 @@
 export interface UserInfo {
     id: number;
     username: string;
-
+    email?: string;
+    role: 'USER' | 'ADMIN';
     telegramId: number;
 }
 
@@ -33,6 +34,11 @@ export interface Chat {
     type: "DIRECT" | "SUPPORT";
     isActive: boolean;
     users?: Array<{
+        id: number;
+        email?: string;
+        role: string;
+    }>;
+    chatUsers?: Array<{
         id: number;
         email?: string;
         role: string;

@@ -1,8 +1,13 @@
-import CardNav from './CardNav'
+import { observer } from 'mobx-react-lite';
+import { useStore } from '@/store/StoreProvider';
+import CardNav from './CardNav';
 import logo from '@/assets/logo.png';
+import { ADMIN_CHATS_ROUTE } from '@/utils/consts';
 
-const Navigation = () => {
-  const items = [
+const Navigation = observer(() => {
+  const { user } = useStore();
+
+  const baseItems = [
     {
       label: "About",
       bgColor: "#0D0716",
@@ -39,6 +44,20 @@ const Navigation = () => {
     }
   ];
 
+  // Добавляем пункт для админа, если пользователь - админ
+  const adminItem = user.isAuth && user.user?.role === 'ADMIN' ? {
+    label: "Admin",
+    bgColor: "#2d1a3d",
+    textColor: "#fff",
+    description: "Панель управления чатами",
+    href: ADMIN_CHATS_ROUTE,
+    links: [
+      { label: "Chats", href: ADMIN_CHATS_ROUTE, ariaLabel: "Admin Chats" }
+    ]
+  } : null;
+
+  const items = adminItem ? [...baseItems, adminItem] : baseItems;
+
   return (
     <CardNav
       logo={logo}
@@ -50,6 +69,6 @@ const Navigation = () => {
       className="z-10"
     />
   );
-};
+});
 
 export default Navigation;

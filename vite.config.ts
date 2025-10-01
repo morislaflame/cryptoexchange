@@ -6,6 +6,9 @@ import path from 'path'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  server: {
+    allowedHosts: ['lpoxilke28ou.share.zrok.io'], 
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
