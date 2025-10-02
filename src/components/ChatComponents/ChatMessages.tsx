@@ -18,8 +18,8 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
     }, [messages]);
 
     return (
-        <div className="flex-1 overflow-hidden overflow-y-auto">
-            <div className="flex-1 px-4 py-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+        <div className="flex-1 overflow-hidden overflow-y-auto hide-scrollbar ios-scroll">
+            <div className="flex-1 px-4 py-2">
                 {messages.length === 0 ? (
                     <div className="flex items-center justify-center h-full min-h-[200px]">
                         <p className="text-white/50 text-sm text-center">Начните разговор с администратором</p>

@@ -4,7 +4,8 @@ import CustomInput from '../ui/CustomInput';
 import CustomTabs, { type TabItem } from '../ui/CustomTabs';
 import Divider from '../ui/Divider';
 import CurrencyCardList from './CurrencyCardList';
-import { type Currency, mockCurrencies, categoryLabels } from '../../types/currency';
+import BankNetworkSelector from './BankNetworkSelector';
+import { type Currency, type BankOption, type NetworkOption, type PaymentCurrencyOption, mockCurrencies, categoryLabels } from '../../types/currency';
 import './CurrencyCard.css';
 
 interface CurrencyCardProps {
@@ -13,7 +14,13 @@ interface CurrencyCardProps {
   onAmountChange?: (amount: string) => void;
   onSearchChange?: (searchTerm: string) => void;
   onFilterChange?: (activeFilter: 'all' | 'fiat' | 'crypto' | 'payment') => void;
+  onBankSelect?: (bank: BankOption) => void;
+  onNetworkSelect?: (network: NetworkOption) => void;
+  onPaymentCurrencySelect?: (currency: PaymentCurrencyOption) => void;
   selectedCurrency?: Currency;
+  selectedBank?: BankOption;
+  selectedNetwork?: NetworkOption;
+  selectedPaymentCurrency?: PaymentCurrencyOption;
   amount?: string;
   searchTerm?: string;
   activeFilter?: 'all' | 'fiat' | 'crypto' | 'payment';
@@ -57,7 +64,13 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
   onAmountChange,
   onSearchChange,
   onFilterChange,
+  onBankSelect,
+  onNetworkSelect,
+  onPaymentCurrencySelect,
   selectedCurrency,
+  selectedBank,
+  selectedNetwork,
+  selectedPaymentCurrency,
   amount = '',
   searchTerm = '',
   activeFilter = 'all',
@@ -194,6 +207,46 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
             className="rounded-lg"
           />
         </div>
+
+        {/* Селектор банка/сети */}
+        {selectedCurrency?.banks && selectedCurrency.banks.length > 0 && (
+          <BankNetworkSelector
+            type="bank"
+            options={selectedCurrency.banks}
+            selectedOption={selectedBank}
+            onSelect={(option) => {
+              if (onBankSelect) {
+                onBankSelect(option as BankOption);
+              }
+            }}
+          />
+        )}
+
+        {selectedCurrency?.networks && selectedCurrency.networks.length > 0 && (
+          <BankNetworkSelector
+            type="network"
+            options={selectedCurrency.networks}
+            selectedOption={selectedNetwork}
+            onSelect={(option) => {
+              if (onNetworkSelect) {
+                onNetworkSelect(option as NetworkOption);
+              }
+            }}
+          />
+        )}
+
+        {selectedCurrency?.paymentCurrencies && selectedCurrency.paymentCurrencies.length > 0 && (
+          <BankNetworkSelector
+            type="currency"
+            options={selectedCurrency.paymentCurrencies}
+            selectedOption={selectedPaymentCurrency}
+            onSelect={(option) => {
+              if (onPaymentCurrencySelect) {
+                onPaymentCurrencySelect(option as PaymentCurrencyOption);
+              }
+            }}
+          />
+        )}
       </div>    
     </div>
   );

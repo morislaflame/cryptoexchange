@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import { CiRepeat } from 'react-icons/ci';
 import CurrencyCard from '../MainPageComponents/CurrencyCard';
 import ConversionSummary from '../MainPageComponents/ConversionSummary';
-import type { Currency } from '../../types/currency';
+import type { Currency, BankOption, NetworkOption, PaymentCurrencyOption } from '../../types/currency';
 import { convertCurrency } from '../../types/exchangeRates';
 import './MagicBento.css';
 
@@ -521,6 +521,9 @@ const MagicBento: React.FC<BentoProps> = ({
     currency?: Currency;
     searchTerm: string;
     activeFilter: 'all' | 'fiat' | 'crypto' | 'payment';
+    bank?: BankOption;
+    network?: NetworkOption;
+    paymentCurrency?: PaymentCurrencyOption;
   }
 
   const [fromData, setFromData] = useState<CardState>({ 
@@ -551,6 +554,18 @@ const MagicBento: React.FC<BentoProps> = ({
     setFromData(prev => ({ ...prev, activeFilter }));
   };
 
+  const handleFromBankSelect = (bank: BankOption) => {
+    setFromData(prev => ({ ...prev, bank }));
+  };
+
+  const handleFromNetworkSelect = (network: NetworkOption) => {
+    setFromData(prev => ({ ...prev, network }));
+  };
+
+  const handleFromPaymentCurrencySelect = (paymentCurrency: PaymentCurrencyOption) => {
+    setFromData(prev => ({ ...prev, paymentCurrency }));
+  };
+
   // Обработчики для второй карточки (toData) - только для отображения
   const handleToAmountChange = () => {
     // Не позволяем изменять сумму во второй карточке - она вычисляется автоматически
@@ -569,6 +584,18 @@ const MagicBento: React.FC<BentoProps> = ({
     setToData(prev => ({ ...prev, activeFilter }));
   };
 
+  const handleToBankSelect = (bank: BankOption) => {
+    setToData(prev => ({ ...prev, bank }));
+  };
+
+  const handleToNetworkSelect = (network: NetworkOption) => {
+    setToData(prev => ({ ...prev, network }));
+  };
+
+  const handleToPaymentCurrencySelect = (paymentCurrency: PaymentCurrencyOption) => {
+    setToData(prev => ({ ...prev, paymentCurrency }));
+  };
+
   const handleSwapCurrencies = () => {
     const tempData = { ...fromData };
     setFromData({ ...toData });
@@ -581,7 +608,13 @@ const MagicBento: React.FC<BentoProps> = ({
       from: fromData.currency,
       to: toData.currency,
       fromAmount: fromData.amount,
-      toAmount: toData.amount
+      toAmount: toData.amount,
+      fromBank: fromData.bank,
+      fromNetwork: fromData.network,
+      fromPaymentCurrency: fromData.paymentCurrency,
+      toBank: toData.bank,
+      toNetwork: toData.network,
+      toPaymentCurrency: toData.paymentCurrency
     });
     alert('Заявка создана! (Это заглушка)');
   };
@@ -609,6 +642,26 @@ const MagicBento: React.FC<BentoProps> = ({
       setToData(prev => ({ ...prev, amount: '' }));
     }
   }, [fromData.amount, fromData.currency, toData.currency]);
+
+  // Сброс банка/сети/валюты платежной системы при смене валюты в первой карточке
+  useEffect(() => {
+    setFromData(prev => ({
+      ...prev,
+      bank: prev.currency?.banks?.length ? undefined : prev.bank,
+      network: prev.currency?.networks?.length ? undefined : prev.network,
+      paymentCurrency: prev.currency?.paymentCurrencies?.length ? undefined : prev.paymentCurrency
+    }));
+  }, [fromData.currency?.id]);
+
+  // Сброс банка/сети/валюты платежной системы при смене валюты во второй карточке
+  useEffect(() => {
+    setToData(prev => ({
+      ...prev,
+      bank: prev.currency?.banks?.length ? undefined : prev.bank,
+      network: prev.currency?.networks?.length ? undefined : prev.network,
+      paymentCurrency: prev.currency?.paymentCurrencies?.length ? undefined : prev.paymentCurrency
+    }));
+  }, [toData.currency?.id]);
 
 
   return (
@@ -646,8 +699,14 @@ const MagicBento: React.FC<BentoProps> = ({
               onCurrencySelect={handleFromCurrencySelect}
               onSearchChange={handleFromSearchChange}
               onFilterChange={handleFromFilterChange}
+              onBankSelect={handleFromBankSelect}
+              onNetworkSelect={handleFromNetworkSelect}
+              onPaymentCurrencySelect={handleFromPaymentCurrencySelect}
               amount={fromData.amount}
               selectedCurrency={fromData.currency}
+              selectedBank={fromData.bank}
+              selectedNetwork={fromData.network}
+              selectedPaymentCurrency={fromData.paymentCurrency}
               searchTerm={fromData.searchTerm}
               activeFilter={fromData.activeFilter}
               readOnly={false}
@@ -676,8 +735,14 @@ const MagicBento: React.FC<BentoProps> = ({
               onCurrencySelect={handleToCurrencySelect}
               onSearchChange={handleToSearchChange}
               onFilterChange={handleToFilterChange}
+              onBankSelect={handleToBankSelect}
+              onNetworkSelect={handleToNetworkSelect}
+              onPaymentCurrencySelect={handleToPaymentCurrencySelect}
               amount={toData.amount}
               selectedCurrency={toData.currency}
+              selectedBank={toData.bank}
+              selectedNetwork={toData.network}
+              selectedPaymentCurrency={toData.paymentCurrency}
               searchTerm={toData.searchTerm}
               activeFilter={toData.activeFilter}
               readOnly={false}
