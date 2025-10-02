@@ -25,8 +25,8 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
     <motion.div
       ref={ref}
       initial={{ scale: 0.7, opacity: 0.5 }}
-      animate={inView ? { scale: 1, opacity: 1 } : { scale: 0.95, opacity: 0 }}
-      transition={{ duration: 0.1 }}
+      animate={inView ? { scale: 1, opacity: 1 } : { scale: 1, opacity: 1 }}
+      transition={{ duration: 0.2 }}
       className="mb-3"
     >
       <div

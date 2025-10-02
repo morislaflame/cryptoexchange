@@ -5,7 +5,7 @@
   --purple-primary: #10b981;
   --purple-glow: #000604;
   --purple-border: #103527;
-  --border-color: #05966874;
+  --border-color: rgba(255, 255, 255, 0.1);
   --background-dark: #022c22;
   color-scheme: light dark;
 }
@@ -20,6 +20,7 @@
   width: 100%;
   margin: 0 auto;
   font-size: clamp(1rem, 0.9rem + 0.5vw, 1.2rem);
+  align-items: stretch;
 }
 
 .card {
@@ -62,6 +63,20 @@
   height: 100%;
 }
 
+/* Контейнер с частицами растягивается на всю высоту */
+.particle-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Дети внутри particle-container также растягиваются */
+.particle-container > * {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 /* Обертка для всей секции с карточками */
 .bento-section-wrapper {
   position: relative;
@@ -71,18 +86,24 @@
   align-items: center;
 }
 
+/* Контейнер для двух карточек обмена */
+.exchange-cards-container {
+  position: relative;
+  width: 100%;
+}
+
+/* Контейнер для карточки итогов */
+.summary-card-container {
+  width: 100%;
+  margin-top: 1em;
+}
+
 /* Стили для иконки обмена валют */
 .swap-icon-container {
-  position: absolute;
-  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
-}
-
-.swap-icon-container .swap-icon-button {
-  pointer-events: auto;
+  z-index: 20;
 }
 
 .swap-icon-button {
@@ -193,7 +214,7 @@
 
 /* Мобильные устройства - все карточки в колонку */
 @media (max-width: 767px) {
-  .card-grid {
+  .exchange-cards-container .card-grid {
     grid-template-columns: 1fr;
     width: 100%;
     margin: 0 auto;
@@ -204,47 +225,68 @@
     width: 100%;
   }
 
-  .swap-icon-container {
-    top: 35%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
-
   .swap-icon-button {
     width: 40px;
     height: 40px;
   }
+
+  .summary-card-container {
+    margin-top: 1em;
+  }
 }
 
-/* Средние экраны - 2 карточки в первом ряду, третья во втором ряду на всю ширину */
+/* Средние экраны - 2 карточки в ряд для обмена, итоги под ними */
 @media (min-width: 768px) and (max-width: 1279px) {
-  .card-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .exchange-cards-container .card-grid {
+    grid-template-columns: 1fr auto 1fr;
     padding-top: 1em;
+    align-items: stretch;
   }
 
-  .card:nth-child(3) {
-    grid-column: span 2;
+  .exchange-cards-container .swap-icon-container {
+    /* padding: 0 1em; */
+    align-self: center;
   }
 
-  .swap-icon-container {
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+  .summary-card-container {
+    margin-top: 1em;
   }
 }
 
-/* Широкие экраны - все три карточки в ряд */
+/* Широкие экраны - карточки обмена слева, итоги справа */
 @media (min-width: 1280px) {
-  .card-grid {
-    grid-template-columns: repeat(3, 1fr);
-    padding-top: 1em;
+  .bento-section-wrapper {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1em;
+    align-items: start;
   }
 
-  .swap-icon-container {
-    top: 50%;
-    left: 33.33%;
-    transform: translate(-50%, -50%);
+  .exchange-cards-container {
+    grid-column: 1;
+  }
+
+  .exchange-cards-container .card-grid {
+    grid-template-columns: 1fr auto 1fr;
+    padding-top: 1em;
+    align-items: stretch;
+  }
+
+  .exchange-cards-container .swap-icon-container {
+    /* padding: 0 1em; */
+    align-self: center;
+  }
+
+  .summary-card-container {
+    grid-column: 2;
+    grid-row: 1;
+    margin-top: 1em;
+  }
+
+  /* Информация об обновлении курсов на больших экранах */
+  .bento-section-wrapper > .mt-4 {
+    grid-column: 1 / -1;
+    margin-top: 1em;
   }
 }
 
@@ -280,7 +322,7 @@
 
 .card--border-glow:hover {
   box-shadow:
-    0 4px 20px #0b9570fa,
+    0 4px 20px #0b95706f,
     0 0 30px var(--purple-glow);
 }
 

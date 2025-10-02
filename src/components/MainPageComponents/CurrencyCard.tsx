@@ -119,7 +119,7 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
 
   return (
     <div className="w-full">
-        <h2 className="text-center p-4 text-2xl font-bold">{title}</h2>
+        <h2 className="text-center px-4 pt-4 text-2xl font-bold">{title}</h2>
       <div className="space-y-4 p-4">
         {/* Инпут суммы или отображение */}
         <div className="space-y-2">

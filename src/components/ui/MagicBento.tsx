@@ -480,7 +480,7 @@ const BentoCardGrid: React.FC<{
   children: React.ReactNode;
   gridRef?: React.RefObject<HTMLDivElement | null>;
 }> = ({ children, gridRef }) => (
-  <div className="card-grid bento-section gap-4" ref={gridRef}>
+  <div className="card-grid bento-section gap-2" ref={gridRef}>
     {children}
   </div>
 );
@@ -791,80 +791,96 @@ const MagicBento: React.FC<BentoProps> = ({
       )}
 
       <div className="bento-section-wrapper">
-        <BentoCardGrid gridRef={gridRef}>
-          {/* Первая карточка - Отдаете */}
-          <ParticleCard
-            key="from-card"
-            className={`card currency-exchange-card ${textAutoHide ? 'card--text-autohide' : ''} ${enableBorderGlow ? 'card--border-glow' : ''}`}
-            style={{
-              backgroundColor: cardData[0]?.color,
-              '--glow-color': glowColor
-            } as React.CSSProperties}
-            disableAnimations={shouldDisableAnimations}
-            particleCount={particleCount}
-            glowColor={glowColor}
-            enableTilt={enableTilt}
-            clickEffect={clickEffect}
-            enableMagnetism={enableMagnetism}
-          >
-            <CurrencyCard
-              title="Отдаете"
-              onAmountChange={handleFromAmountChange}
-              onCurrencySelect={handleFromCurrencySelect}
-              onSearchChange={handleFromSearchChange}
-              onFilterChange={handleFromFilterChange}
-              onBankSelect={handleFromBankSelect}
-              onNetworkSelect={handleFromNetworkSelect}
-              onPaymentCurrencySelect={handleFromPaymentCurrencySelect}
-              amount={fromData.amount}
-              selectedCurrency={fromData.currency}
-              selectedBank={fromData.bank}
-              selectedNetwork={fromData.network}
-              selectedPaymentCurrency={fromData.paymentCurrency}
-              searchTerm={fromData.searchTerm}
-              activeFilter={fromData.activeFilter}
-              readOnly={false}
-              displayOnly={false}
-            />
-          </ParticleCard>
+        {/* Контейнер для первых двух карточек с кнопкой свапа */}
+        <div className="exchange-cards-container">
+          <BentoCardGrid gridRef={gridRef}>
+            {/* Первая карточка - Отдаете */}
+            <ParticleCard
+              key="from-card"
+              className={`card currency-exchange-card ${textAutoHide ? 'card--text-autohide' : ''} ${enableBorderGlow ? 'card--border-glow' : ''}`}
+              style={{
+                backgroundColor: cardData[0]?.color,
+                '--glow-color': glowColor
+              } as React.CSSProperties}
+              disableAnimations={shouldDisableAnimations}
+              particleCount={particleCount}
+              glowColor={glowColor}
+              enableTilt={enableTilt}
+              clickEffect={clickEffect}
+              enableMagnetism={enableMagnetism}
+            >
+              <CurrencyCard
+                title="Отдаете"
+                onAmountChange={handleFromAmountChange}
+                onCurrencySelect={handleFromCurrencySelect}
+                onSearchChange={handleFromSearchChange}
+                onFilterChange={handleFromFilterChange}
+                onBankSelect={handleFromBankSelect}
+                onNetworkSelect={handleFromNetworkSelect}
+                onPaymentCurrencySelect={handleFromPaymentCurrencySelect}
+                amount={fromData.amount}
+                selectedCurrency={fromData.currency}
+                selectedBank={fromData.bank}
+                selectedNetwork={fromData.network}
+                selectedPaymentCurrency={fromData.paymentCurrency}
+                searchTerm={fromData.searchTerm}
+                activeFilter={fromData.activeFilter}
+                readOnly={false}
+                displayOnly={false}
+              />
+            </ParticleCard>
 
-          {/* Вторая карточка - Получаете */}
-          <ParticleCard
-            key="to-card"
-            className={`card currency-exchange-card ${textAutoHide ? 'card--text-autohide' : ''} ${enableBorderGlow ? 'card--border-glow' : ''}`}
-            style={{
-              backgroundColor: cardData[1]?.color,
-              '--glow-color': glowColor
-            } as React.CSSProperties}
-            disableAnimations={shouldDisableAnimations}
-            particleCount={particleCount}
-            glowColor={glowColor}
-            enableTilt={enableTilt}
-            clickEffect={clickEffect}
-            enableMagnetism={enableMagnetism}
-          >
-            <CurrencyCard
-              title="Получаете"
-              onAmountChange={handleToAmountChange}
-              onCurrencySelect={handleToCurrencySelect}
-              onSearchChange={handleToSearchChange}
-              onFilterChange={handleToFilterChange}
-              onBankSelect={handleToBankSelect}
-              onNetworkSelect={handleToNetworkSelect}
-              onPaymentCurrencySelect={handleToPaymentCurrencySelect}
-              amount={toData.amount}
-              selectedCurrency={toData.currency}
-              selectedBank={toData.bank}
-              selectedNetwork={toData.network}
-              selectedPaymentCurrency={toData.paymentCurrency}
-              searchTerm={toData.searchTerm}
-              activeFilter={toData.activeFilter}
-              readOnly={false}
-              displayOnly={true}
-            />
-          </ParticleCard>
+            {/* Кнопка свапа между карточками */}
+            <div className="swap-icon-container">
+              <button 
+                className="swap-icon-button"
+                onClick={handleSwapCurrencies}
+                title="Поменять валюты местами"
+              >
+                <CiRepeat size={24} />
+              </button>
+            </div>
 
-          {/* Третья карточка - Итоги конвертации */}
+            {/* Вторая карточка - Получаете */}
+            <ParticleCard
+              key="to-card"
+              className={`card currency-exchange-card ${textAutoHide ? 'card--text-autohide' : ''} ${enableBorderGlow ? 'card--border-glow' : ''}`}
+              style={{
+                backgroundColor: cardData[1]?.color,
+                '--glow-color': glowColor
+              } as React.CSSProperties}
+              disableAnimations={shouldDisableAnimations}
+              particleCount={particleCount}
+              glowColor={glowColor}
+              enableTilt={enableTilt}
+              clickEffect={clickEffect}
+              enableMagnetism={enableMagnetism}
+            >
+              <CurrencyCard
+                title="Получаете"
+                onAmountChange={handleToAmountChange}
+                onCurrencySelect={handleToCurrencySelect}
+                onSearchChange={handleToSearchChange}
+                onFilterChange={handleToFilterChange}
+                onBankSelect={handleToBankSelect}
+                onNetworkSelect={handleToNetworkSelect}
+                onPaymentCurrencySelect={handleToPaymentCurrencySelect}
+                amount={toData.amount}
+                selectedCurrency={toData.currency}
+                selectedBank={toData.bank}
+                selectedNetwork={toData.network}
+                selectedPaymentCurrency={toData.paymentCurrency}
+                searchTerm={toData.searchTerm}
+                activeFilter={toData.activeFilter}
+                readOnly={false}
+                displayOnly={true}
+              />
+            </ParticleCard>
+          </BentoCardGrid>
+        </div>
+
+        {/* Третья карточка - Итоги конвертации */}
+        <div className="summary-card-container">
           <ParticleCard
             key="summary-card"
             className={`card currency-exchange-card ${textAutoHide ? 'card--text-autohide' : ''} ${enableBorderGlow ? 'card--border-glow' : ''}`}
@@ -890,17 +906,6 @@ const MagicBento: React.FC<BentoProps> = ({
               onCreateOrder={handleCreateOrder}
             />
           </ParticleCard>
-        </BentoCardGrid>
-
-        {/* Иконка обмена абсолютно позиционирована */}
-        <div className="swap-icon-container">
-          <button 
-            className="swap-icon-button"
-            onClick={handleSwapCurrencies}
-            title="Поменять валюты местами"
-          >
-            <CiRepeat size={24} />
-          </button>
         </div>
 
         {/* Информация об обновлении курсов */}
