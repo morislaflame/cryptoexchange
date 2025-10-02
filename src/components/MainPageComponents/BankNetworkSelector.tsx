@@ -40,7 +40,7 @@ const OptionCard: React.FC<OptionCardProps> = ({
         <div className="relative p-3 flex items-center gap-3">
           {/* Иконка */}
           <div className={`
-            flex items-center justify-center w-10 h-10 rounded-full text-base font-bold transition-all duration-300
+            flex items-center justify-center w-10 h-10 rounded-full text-base font-bold transition-all duration-300 overflow-hidden
             ${isSelected 
               ? 'bg-emerald-500/20 text-emerald-400 ring-2 ring-emerald-500/30' 
               : isHovered 
@@ -48,7 +48,22 @@ const OptionCard: React.FC<OptionCardProps> = ({
                 : 'bg-white/10 text-white/70'
             }
           `}>
-            {option.icon || option.name.charAt(0)}
+            {option.icon ? (
+              // Если иконка - это путь к файлу (содержит .png, .jpg и т.д.), показываем изображение
+              typeof option.icon === 'string' && (option.icon.includes('.png') || option.icon.includes('.jpg') || option.icon.includes('.svg')) ? (
+                <img 
+                  src={option.icon} 
+                  alt={option.name}
+                  className="w-4 h-4 object-contain"
+                />
+              ) : (
+                // Иначе - это эмодзи или текст
+                option.icon
+              )
+            ) : (
+              // Если иконки нет - первая буква названия
+              option.name.charAt(0)
+            )}
           </div>
           
           {/* Название */}

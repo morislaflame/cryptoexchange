@@ -1,3 +1,5 @@
+import { bankIcons, paymentIcons, cryptoIcons } from '../assets/bankIcons';
+
 export interface BankOption {
   id: string;
   name: string;
@@ -38,13 +40,19 @@ export const mockCurrencies: Currency[] = [
     category: 'fiat', 
     icon: '🇷🇺',
     banks: [
-      { id: 'sberbank', name: 'Сбербанк', icon: '🟢' },
-      { id: 'tinkoff', name: 'Тинькофф', icon: '🟡' },
-      { id: 'vtb', name: 'ВТБ', icon: '🔵' },
-      { id: 'alfabank', name: 'Альфа-Банк', icon: '🔴' },
-      { id: 'raiffeisenbank', name: 'Райффайзенбанк', icon: '🟠' },
-      { id: 'gazprombank', name: 'Газпромбанк', icon: '⚫' },
-      { id: 'rosbank', name: 'Росбанк', icon: '🟣' },
+      { id: 'sberbank', name: 'Сбербанк', icon: bankIcons.sberbank },
+      { id: 'tinkoff', name: 'Т-Банк (Тинькофф)', icon: bankIcons.tinkoff },
+      { id: 'vtb', name: 'ВТБ', icon: bankIcons.vtb },
+      { id: 'alfabank', name: 'Альфа-Банк', icon: bankIcons.alfabank },
+      { id: 'raiffeisenbank', name: 'Райффайзенбанк', icon: bankIcons.raiffeisenbank },
+      { id: 'gazprombank', name: 'Газпромбанк', icon: bankIcons.gazprombank },
+      { id: 'rosbank', name: 'Росбанк', icon: bankIcons.rosbank },
+      { id: 'otkritie', name: 'Открытие', icon: bankIcons.otkritie },
+      { id: 'psb', name: 'ПСБ', icon: bankIcons.psb },
+      { id: 'sovkombank', name: 'Совкомбанк', icon: bankIcons.sovkombank },
+      { id: 'mkb', name: 'МКБ', icon: bankIcons.mkb },
+      { id: 'ozonbank', name: 'Озон Банк', icon: bankIcons.ozonbank },
+      { id: 'sinara', name: 'Синара', icon: bankIcons.sinara },
     ]
   },
   
@@ -54,7 +62,7 @@ export const mockCurrencies: Currency[] = [
     name: 'Bitcoin', 
     symbol: 'BTC', 
     category: 'crypto', 
-    icon: '₿',
+    icon: cryptoIcons.btc,
     networks: [
       { id: 'bitcoin', name: 'Bitcoin', icon: '₿' },
       { id: 'lightning', name: 'Lightning Network', icon: '⚡' },
@@ -65,7 +73,7 @@ export const mockCurrencies: Currency[] = [
     name: 'Bitcoin Cash', 
     symbol: 'BCH', 
     category: 'crypto', 
-    icon: '₿',
+    icon: cryptoIcons.bch,
     networks: [
       { id: 'bch', name: 'Bitcoin Cash', icon: '₿' },
     ]
@@ -75,11 +83,11 @@ export const mockCurrencies: Currency[] = [
     name: 'Ethereum', 
     symbol: 'ETH', 
     category: 'crypto', 
-    icon: 'Ξ',
+    icon: cryptoIcons.eth,
     networks: [
-      { id: 'erc20', name: 'ERC20', icon: 'Ξ' },
-      { id: 'arbitrum', name: 'Arbitrum', icon: '🔷' },
-      { id: 'optimism', name: 'Optimism', icon: '🔴' },
+      { id: 'erc20', name: 'ERC20', icon: 'E' },
+      { id: 'arbitrum', name: 'Arbitrum', icon: 'A' },
+      { id: 'optimism', name: 'Optimism', icon: 'O' },
     ]
   },
   { 
@@ -87,12 +95,12 @@ export const mockCurrencies: Currency[] = [
     name: 'Tether', 
     symbol: 'USDT', 
     category: 'crypto', 
-    icon: '₮',
+    icon: cryptoIcons.usdt,
     networks: [
-      { id: 'trc20', name: 'TRC20', icon: '🟢' },
-      { id: 'erc20', name: 'ERC20', icon: 'Ξ' },
-      { id: 'bep20', name: 'BEP20', icon: '🟡' },
-      { id: 'polygon', name: 'Polygon', icon: '🟣' },
+      { id: 'trc20', name: 'TRC20', icon: 'T' },
+      { id: 'erc20', name: 'ERC20', icon: 'E' },
+      { id: 'bep20', name: 'BEP20', icon: 'B' },
+      { id: 'polygon', name: 'Polygon', icon: 'P' },
     ]
   },
   { 
@@ -100,10 +108,10 @@ export const mockCurrencies: Currency[] = [
     name: 'Binance Coin', 
     symbol: 'BNB', 
     category: 'crypto', 
-    icon: '🔶',
+    icon: cryptoIcons.bnb,
     networks: [
-      { id: 'bep20', name: 'BEP20 (BSC)', icon: '🟡' },
-      { id: 'bep2', name: 'BEP2 (Binance Chain)', icon: '🟠' },
+      { id: 'bep20', name: 'BEP20 (BSC)', icon: 'B' },
+      { id: 'bep2', name: 'BEP2 (Binance Chain)', icon: 'B' },
     ]
   },
   { 
@@ -111,7 +119,7 @@ export const mockCurrencies: Currency[] = [
     name: 'Cardano', 
     symbol: 'ADA', 
     category: 'crypto', 
-    icon: '◈',
+    icon: cryptoIcons.ada,
     networks: [
       { id: 'cardano', name: 'Cardano', icon: '◈' },
     ]
@@ -121,7 +129,7 @@ export const mockCurrencies: Currency[] = [
     name: 'Solana', 
     symbol: 'SOL', 
     category: 'crypto', 
-    icon: '◎',
+    icon: cryptoIcons.sol,
     networks: [
       { id: 'solana', name: 'Solana', icon: '◎' },
     ]
@@ -131,7 +139,7 @@ export const mockCurrencies: Currency[] = [
     name: 'Ripple', 
     symbol: 'XRP', 
     category: 'crypto', 
-    icon: '◉',
+    icon: cryptoIcons.xrp,
     networks: [
       { id: 'ripple', name: 'Ripple', icon: '◉' },
     ]
@@ -141,7 +149,7 @@ export const mockCurrencies: Currency[] = [
     name: 'Polkadot', 
     symbol: 'DOT', 
     category: 'crypto', 
-    icon: '●',
+    icon: cryptoIcons.dot,
     networks: [
       { id: 'polkadot', name: 'Polkadot', icon: '●' },
     ]
@@ -151,10 +159,10 @@ export const mockCurrencies: Currency[] = [
     name: 'Chainlink', 
     symbol: 'LINK', 
     category: 'crypto', 
-    icon: '🔗',
+    icon: cryptoIcons.link,
     networks: [
-      { id: 'erc20', name: 'ERC20', icon: 'Ξ' },
-      { id: 'bep20', name: 'BEP20', icon: '🟡' },
+      { id: 'erc20', name: 'ERC20', icon: 'E' },
+      { id: 'bep20', name: 'BEP20', icon: 'B' },
     ]
   },
   { 
@@ -162,10 +170,10 @@ export const mockCurrencies: Currency[] = [
     name: 'Avalanche', 
     symbol: 'AVAX', 
     category: 'crypto', 
-    icon: '🔺',
+    icon: cryptoIcons.avax,
     networks: [
-      { id: 'avalanche-c', name: 'Avalanche C-Chain', icon: '🔺' },
-      { id: 'avalanche-x', name: 'Avalanche X-Chain', icon: '🔻' },
+      { id: 'avalanche-c', name: 'Avalanche C-Chain', icon: 'A' },
+      { id: 'avalanche-x', name: 'Avalanche X-Chain', icon: 'A' },
     ]
   },
   { 
@@ -173,7 +181,7 @@ export const mockCurrencies: Currency[] = [
     name: 'Litecoin', 
     symbol: 'LTC', 
     category: 'crypto', 
-    icon: 'Ł',
+    icon: cryptoIcons.ltc,
     networks: [
       { id: 'litecoin', name: 'Litecoin', icon: 'Ł' },
     ]
@@ -183,9 +191,9 @@ export const mockCurrencies: Currency[] = [
     name: 'Dogecoin', 
     symbol: 'DOGE', 
     category: 'crypto', 
-    icon: '🐶',
+    icon: cryptoIcons.doge,
     networks: [
-      { id: 'dogecoin', name: 'Dogecoin', icon: '🐶' },
+      { id: 'dogecoin', name: 'Dogecoin', icon: 'D' },
     ]
   },
   { 
@@ -193,7 +201,7 @@ export const mockCurrencies: Currency[] = [
     name: 'Stellar', 
     symbol: 'XLM', 
     category: 'crypto', 
-    icon: 'Ş',
+    icon: cryptoIcons.xlm,
     networks: [
       { id: 'stellar', name: 'Stellar', icon: 'Ş' },
     ]
@@ -203,9 +211,9 @@ export const mockCurrencies: Currency[] = [
     name: 'Monero', 
     symbol: 'XMR', 
     category: 'crypto', 
-    icon: '⛏',
+    icon: cryptoIcons.xmr,
     networks: [
-      { id: 'monero', name: 'Monero', icon: '⛏' },
+      { id: 'monero', name: 'Monero', icon: 'M' },
     ]
   },
   { 
@@ -213,9 +221,9 @@ export const mockCurrencies: Currency[] = [
     name: 'TON', 
     symbol: 'TON', 
     category: 'crypto', 
-    icon: '🔹',
+    icon: cryptoIcons.ton,
     networks: [
-      { id: 'ton', name: 'TON', icon: '🔹' },
+      { id: 'ton', name: 'TON', icon: 'T' },
     ]
   },
   
@@ -225,7 +233,7 @@ export const mockCurrencies: Currency[] = [
     name: 'PayPal', 
     symbol: 'PayPal', 
     category: 'payment', 
-    icon: '💙',
+    icon: paymentIcons.paypal,
     paymentCurrencies: [
       { id: 'usd', name: 'USD', icon: '🇺🇸' },
       { id: 'eur', name: 'EUR', icon: '🇪🇺' },
@@ -238,7 +246,7 @@ export const mockCurrencies: Currency[] = [
     name: 'Skrill', 
     symbol: 'Skrill', 
     category: 'payment', 
-    icon: '🟣',
+    icon: paymentIcons.skrill,
     paymentCurrencies: [
       { id: 'usd', name: 'USD', icon: '🇺🇸' },
       { id: 'eur', name: 'EUR', icon: '🇪🇺' },
@@ -250,7 +258,7 @@ export const mockCurrencies: Currency[] = [
     name: 'Neteller', 
     symbol: 'Neteller', 
     category: 'payment', 
-    icon: '🟢',
+    icon: paymentIcons.neteller,
     paymentCurrencies: [
       { id: 'usd', name: 'USD', icon: '🇺🇸' },
       { id: 'eur', name: 'EUR', icon: '🇪🇺' },
@@ -262,7 +270,7 @@ export const mockCurrencies: Currency[] = [
     name: 'WebMoney', 
     symbol: 'WMZ', 
     category: 'payment', 
-    icon: '🟡',
+    icon: paymentIcons.webmoney,
     paymentCurrencies: [
       { id: 'wmz', name: 'WMZ (USD)', icon: '💵' },
       { id: 'wme', name: 'WME (EUR)', icon: '💶' },
@@ -274,7 +282,7 @@ export const mockCurrencies: Currency[] = [
     name: 'Perfect Money', 
     symbol: 'PM', 
     category: 'payment', 
-    icon: '🔴',
+    icon: paymentIcons.perfectmoney,
     paymentCurrencies: [
       { id: 'usd', name: 'USD', icon: '🇺🇸' },
       { id: 'eur', name: 'EUR', icon: '🇪🇺' },
@@ -282,10 +290,10 @@ export const mockCurrencies: Currency[] = [
   },
   { 
     id: 'yoomoney', 
-    name: 'Yoomoney', 
-    symbol: 'Yoomoney', 
+    name: 'ЮMoney', 
+    symbol: 'ЮMoney', 
     category: 'payment', 
-    icon: '🟠',
+    icon: paymentIcons.yoomoney,
     paymentCurrencies: [
       { id: 'rub', name: 'RUB', icon: '🇷🇺' },
     ]
@@ -295,7 +303,7 @@ export const mockCurrencies: Currency[] = [
     name: 'Payeer', 
     symbol: 'Payeer', 
     category: 'payment', 
-    icon: '🟠',
+    icon: paymentIcons.payeer,
     paymentCurrencies: [
       { id: 'usd', name: 'USD', icon: '🇺🇸' },
       { id: 'eur', name: 'EUR', icon: '🇪🇺' },
@@ -307,7 +315,7 @@ export const mockCurrencies: Currency[] = [
     name: 'AdvCash', 
     symbol: 'ADV', 
     category: 'payment', 
-    icon: '⚪',
+    icon: paymentIcons.advcash,
     paymentCurrencies: [
       { id: 'usd', name: 'USD', icon: '🇺🇸' },
       { id: 'eur', name: 'EUR', icon: '🇪🇺' },
@@ -320,7 +328,7 @@ export const mockCurrencies: Currency[] = [
     name: 'QIWI', 
     symbol: 'QIWI', 
     category: 'payment', 
-    icon: '🟤',
+    icon: paymentIcons.qiwi,
     paymentCurrencies: [
       { id: 'rub', name: 'RUB', icon: '🇷🇺' },
       { id: 'kzt', name: 'KZT', icon: '🇰🇿' },

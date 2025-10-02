@@ -24,9 +24,9 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
   return (
     <motion.div
       ref={ref}
-      initial={{ scale: 0.7, opacity: 0 }}
+      initial={{ scale: 0.7, opacity: 0.5 }}
       animate={inView ? { scale: 1, opacity: 1 } : { scale: 0.95, opacity: 0 }}
-      transition={{ duration: 0.2 }}
+      transition={{ duration: 0.1 }}
       className="mb-3"
     >
       <div
@@ -49,7 +49,7 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
         <div className="relative p-4 flex items-center gap-4">
           {/* Иконка валюты */}
           <div className={`
-            flex items-center justify-center w-12 h-12 rounded-full text-lg font-bold transition-all duration-300
+            flex items-center justify-center w-12 h-12 rounded-full text-lg font-bold transition-all duration-300 overflow-hidden
             ${isSelected 
               ? 'bg-emerald-500/20 text-emerald-400 ring-2 ring-emerald-500/30' 
               : isHovered 
@@ -57,7 +57,22 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
                 : 'bg-white/10 text-white/70'
             }
           `}>
-            {currency.icon || currency.symbol.charAt(0)}
+            {currency.icon ? (
+              // Если иконка - это путь к файлу (содержит .png, .jpg и т.д.), показываем изображение
+              typeof currency.icon === 'string' && (currency.icon.includes('.png') || currency.icon.includes('.jpg') || currency.icon.includes('.svg')) ? (
+                <img 
+                  src={currency.icon} 
+                  alt={currency.name}
+                  className="w-6 h-6 object-contain"
+                />
+              ) : (
+                // Иначе - это эмодзи или текст
+                currency.icon
+              )
+            ) : (
+              // Если иконки нет - первая буква символа
+              currency.symbol.charAt(0)
+            )}
           </div>
           
           {/* Информация о валюте */}
@@ -210,7 +225,7 @@ const CurrencyCardList: React.FC<CurrencyCardListProps> = ({
       <div
         ref={listRef}
         className={`
-          lg:max-h-80 max-h-40 overflow-y-auto
+          lg:max-h-80 max-h-70 overflow-y-auto
           scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/20 hide-scrollbar
         `}
       >
