@@ -9,6 +9,9 @@ interface ConversionSummaryProps {
   toCurrency?: Currency;
   fromAmount: string;
   toAmount: string;
+  toAmountWithoutFee?: string; // Сумма без комиссии
+  feeAmount?: string; // Сумма комиссии
+  feePercent?: number; // Процент комиссии
   onCreateOrder?: () => void;
 }
 
@@ -17,6 +20,9 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = ({
   toCurrency,
   fromAmount,
   toAmount,
+  toAmountWithoutFee,
+  feeAmount,
+  feePercent = 3,
   onCreateOrder
 }) => {
   // Вычисляем курс обмена
@@ -74,21 +80,64 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = ({
             icon={<CiRepeat size={20} />}
           />
 
-          {/* Получаете */}
-          <div className="p-5 bg-white/5 border border-white/10 rounded-xl">
-            <div className="flex items-center justify-between gap-4">
-              <div className="text-white text-xl font-bold flex-grow">
-                {formatAmount(toAmount)}
+          {/* Блок с информацией о комиссии */}
+          {toAmountWithoutFee && feeAmount && (
+            <div className="flex flex-col gap-2 p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-xl">
+              {/* Сумма без комиссии */}
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-white/70">Сумма без комиссии:</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-white font-semibold">{formatAmount(toAmountWithoutFee)}</span>
+                  {toCurrency && (
+                    <span className=" font-semibold">{toCurrency.symbol}</span>
+                  )}
+                </div>
               </div>
-              {toCurrency && (
-              <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm px-2 py-1 border border-emerald-500/20 rounded-lg backdrop-blur-sm justify-center">
+
+              {/* Комиссия сервиса */}
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-white/70">Комиссия сервиса ({feePercent}%):</span>
+                <div className="flex items-center gap-2">
+                  <span className=" font-semibold">-{formatAmount(feeAmount)}</span>
+                  {toCurrency && (
+                    <span className=" font-semibold">{toCurrency.symbol}</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Разделитель */}
+              <div className="h-px bg-white/10 my-1"></div>
+
+              {/* Итого к получению */}
+              <div className="flex items-center justify-between">
+                <span className="text-white font-semibold">Итого к получению:</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-emerald-400 font-bold text-lg">{formatAmount(toAmount)}</span>
+                  {toCurrency && (
+                    <span className="text-emerald-400 font-bold">{toCurrency.symbol}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Получаете (если нет информации о комиссии - показываем как раньше) */}
+          {(!toAmountWithoutFee || !feeAmount) && (
+            <div className="p-5 bg-white/5 border border-white/10 rounded-xl">
+              <div className="flex items-center justify-between gap-4">
+                <div className="text-white text-xl font-bold flex-grow">
+                  {formatAmount(toAmount)}
+                </div>
+                {toCurrency && (
+                  <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm px-2 py-1 border border-emerald-500/20 rounded-lg backdrop-blur-sm justify-center">
                     <span className="font-bold">
                       {toCurrency.symbol}
                     </span>
+                  </div>
+                )}
               </div>
-              )}
             </div>
-          </div>
+          )}
         </div>
 
         {/* Курс обмена */}

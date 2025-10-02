@@ -3,8 +3,9 @@ import { gsap } from 'gsap';
 import { CiRepeat } from 'react-icons/ci';
 import CurrencyCard from '../MainPageComponents/CurrencyCard';
 import ConversionSummary from '../MainPageComponents/ConversionSummary';
+import ExchangeRateInfo from '../ExchangeRateInfo';
 import type { Currency, BankOption, NetworkOption, PaymentCurrencyOption } from '../../types/currency';
-import { convertCurrency } from '../../types/exchangeRates';
+import { convertCurrency, convertCurrencyReal } from '../../types/exchangeRates';
 import './MagicBento.css';
 
 export interface BentoCardProps {
@@ -515,6 +516,9 @@ const MagicBento: React.FC<BentoProps> = ({
   const isMobile = useMobileDetection();
   const shouldDisableAnimations = disableAnimations || isMobile;
 
+  // Константы
+  const SERVICE_FEE_PERCENT = 3; // Комиссия сервиса 3%
+
   // Расширенное состояние для обеих карточек
   interface CardState {
     amount: string;
@@ -536,6 +540,10 @@ const MagicBento: React.FC<BentoProps> = ({
     searchTerm: '', 
     activeFilter: 'all' 
   });
+
+  // Дополнительное состояние для отображения комиссии
+  const [toAmountWithoutFee, setToAmountWithoutFee] = useState<string>('');
+  const [feeAmount, setFeeAmount] = useState<string>('');
 
   // Обработчики для первой карточки (fromData)
   const handleFromAmountChange = (amount: string) => {
@@ -602,6 +610,25 @@ const MagicBento: React.FC<BentoProps> = ({
     setToData({ ...tempData });
   };
 
+  /**
+   * Получить ID валюты для конвертации
+   * Для платежных систем используется ID выбранной валюты внутри ПС
+   */
+  const getCurrencyIdForConversion = (
+    currency: Currency | undefined,
+    paymentCurrency?: PaymentCurrencyOption
+  ): string | null => {
+    if (!currency) return null;
+
+    // Для платежных систем используем выбранную валюту внутри ПС
+    if (currency.category === 'payment') {
+      return paymentCurrency?.id || null;
+    }
+
+    // Для остальных (фиат, крипто) используем ID валюты напрямую
+    return currency.id;
+  };
+
   const handleCreateOrder = () => {
     // Здесь будет логика создания заявки
     console.log('Создание заявки:', {
@@ -621,27 +648,114 @@ const MagicBento: React.FC<BentoProps> = ({
 
   // Автоматическая конвертация при изменении суммы или валюты в первой карточке
   useEffect(() => {
-    if (fromData.amount && fromData.currency && toData.currency) {
-      const amount = parseFloat(fromData.amount);
-      if (!isNaN(amount) && amount > 0) {
-        const convertedAmount = convertCurrency(
-          amount,
-          fromData.currency.id,
-          toData.currency.id
-        );
-        
-        if (convertedAmount !== null) {
-          setToData(prev => ({
-            ...prev,
-            amount: convertedAmount.toFixed(6) // Округляем до 6 знаков после запятой
-          }));
+    let isActive = true; // Флаг для предотвращения race conditions
+
+    const performConversion = async () => {
+      if (fromData.amount && fromData.currency && toData.currency) {
+        // Получаем ID валют для конвертации с учетом платежных систем
+        const fromCurrencyId = getCurrencyIdForConversion(fromData.currency, fromData.paymentCurrency);
+        const toCurrencyId = getCurrencyIdForConversion(toData.currency, toData.paymentCurrency);
+
+        // Если для платежной системы не выбрана валюта, не выполняем конвертацию
+        if (!fromCurrencyId || !toCurrencyId) {
+          if (isActive) {
+            setToData(prev => ({ ...prev, amount: '' }));
+          }
+          return;
+        }
+
+        const amount = parseFloat(fromData.amount);
+        if (!isNaN(amount) && amount > 0) {
+          try {
+            // Пытаемся получить реальный курс
+            const convertedAmount = await convertCurrencyReal(
+              amount,
+              fromCurrencyId,
+              toCurrencyId
+            );
+            
+            // Проверяем, что компонент еще активен
+            if (isActive && convertedAmount !== null) {
+              // Вычисляем комиссию
+              const fee = convertedAmount * (SERVICE_FEE_PERCENT / 100);
+              const amountAfterFee = convertedAmount - fee;
+
+              setToAmountWithoutFee(convertedAmount.toFixed(6));
+              setFeeAmount(fee.toFixed(6));
+              setToData(prev => ({
+                ...prev,
+                amount: amountAfterFee.toFixed(6) // Сумма с учетом комиссии
+              }));
+            } else if (isActive) {
+              // Если реальный курс недоступен, используем моки как фоллбэк
+              const mockConvertedAmount = convertCurrency(
+                amount,
+                fromCurrencyId,
+                toCurrencyId
+              );
+              
+              if (mockConvertedAmount !== null) {
+                // Вычисляем комиссию
+                const fee = mockConvertedAmount * (SERVICE_FEE_PERCENT / 100);
+                const amountAfterFee = mockConvertedAmount - fee;
+
+                setToAmountWithoutFee(mockConvertedAmount.toFixed(6));
+                setFeeAmount(fee.toFixed(6));
+                setToData(prev => ({
+                  ...prev,
+                  amount: amountAfterFee.toFixed(6)
+                }));
+              }
+            }
+          } catch (error) {
+            console.error('Ошибка конвертации:', error);
+            
+            // При ошибке используем моки
+            if (isActive) {
+              const mockConvertedAmount = convertCurrency(
+                amount,
+                fromCurrencyId,
+                toCurrencyId
+              );
+              
+              if (mockConvertedAmount !== null) {
+                // Вычисляем комиссию
+                const fee = mockConvertedAmount * (SERVICE_FEE_PERCENT / 100);
+                const amountAfterFee = mockConvertedAmount - fee;
+
+                setToAmountWithoutFee(mockConvertedAmount.toFixed(6));
+                setFeeAmount(fee.toFixed(6));
+                setToData(prev => ({
+                  ...prev,
+                  amount: amountAfterFee.toFixed(6)
+                }));
+              }
+            }
+          }
+        }
+      } else if (!fromData.amount || !fromData.currency || !toData.currency) {
+        // Очищаем сумму во второй карточке, если нет данных для конвертации
+        if (isActive) {
+          setToData(prev => ({ ...prev, amount: '' }));
+          setToAmountWithoutFee('');
+          setFeeAmount('');
         }
       }
-    } else if (!fromData.amount || !fromData.currency || !toData.currency) {
-      // Очищаем сумму во второй карточке, если нет данных для конвертации
-      setToData(prev => ({ ...prev, amount: '' }));
-    }
-  }, [fromData.amount, fromData.currency, toData.currency]);
+    };
+
+    performConversion();
+
+    // Cleanup function для предотвращения обновления state после unmount
+    return () => {
+      isActive = false;
+    };
+  }, [
+    fromData.amount, 
+    fromData.currency, 
+    fromData.paymentCurrency, 
+    toData.currency, 
+    toData.paymentCurrency
+  ]);
 
   // Сброс банка/сети/валюты платежной системы при смене валюты в первой карточке
   useEffect(() => {
@@ -770,6 +884,9 @@ const MagicBento: React.FC<BentoProps> = ({
               toCurrency={toData.currency}
               fromAmount={fromData.amount}
               toAmount={toData.amount}
+              toAmountWithoutFee={toAmountWithoutFee}
+              feeAmount={feeAmount}
+              feePercent={SERVICE_FEE_PERCENT}
               onCreateOrder={handleCreateOrder}
             />
           </ParticleCard>
@@ -784,8 +901,13 @@ const MagicBento: React.FC<BentoProps> = ({
           >
             <CiRepeat size={24} />
           </button>
-              </div>
-            </div>
+        </div>
+
+        {/* Информация об обновлении курсов */}
+        <div className="mt-4 flex justify-center">
+          <ExchangeRateInfo />
+        </div>
+      </div>
     </>
   );
 };

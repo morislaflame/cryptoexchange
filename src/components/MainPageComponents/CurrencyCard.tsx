@@ -210,42 +210,69 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
 
         {/* Селектор банка/сети */}
         {selectedCurrency?.banks && selectedCurrency.banks.length > 0 && (
-          <BankNetworkSelector
-            type="bank"
-            options={selectedCurrency.banks}
-            selectedOption={selectedBank}
-            onSelect={(option) => {
-              if (onBankSelect) {
-                onBankSelect(option as BankOption);
-              }
-            }}
-          />
+          <>
+            <BankNetworkSelector
+              type="bank"
+              options={selectedCurrency.banks}
+              selectedOption={selectedBank}
+              onSelect={(option) => {
+                if (onBankSelect) {
+                  onBankSelect(option as BankOption);
+                }
+              }}
+            />
+            {!selectedBank && (
+              <div className="mt-2 p-2 rounded-lg bg-gray-500/10 border border-gray-500/20">
+                <p className="text-xs text-gray-400/80 text-center">
+                  Выберите банк для продолжения
+                </p>
+              </div>
+            )}
+          </>
         )}
 
         {selectedCurrency?.networks && selectedCurrency.networks.length > 0 && (
-          <BankNetworkSelector
-            type="network"
-            options={selectedCurrency.networks}
-            selectedOption={selectedNetwork}
-            onSelect={(option) => {
-              if (onNetworkSelect) {
-                onNetworkSelect(option as NetworkOption);
-              }
-            }}
-          />
+          <>
+            <BankNetworkSelector
+              type="network"
+              options={selectedCurrency.networks}
+              selectedOption={selectedNetwork}
+              onSelect={(option) => {
+                if (onNetworkSelect) {
+                  onNetworkSelect(option as NetworkOption);
+                }
+              }}
+            />
+            {!selectedNetwork && (
+              <div className="mt-2 p-2 rounded-lg bg-gray-500/10 border border-gray-500/20">
+                <p className="text-xs text-gray-400/80 text-center">
+                  Выберите сеть для продолжения
+                </p>
+              </div>
+            )}
+          </>
         )}
 
         {selectedCurrency?.paymentCurrencies && selectedCurrency.paymentCurrencies.length > 0 && (
-          <BankNetworkSelector
-            type="currency"
-            options={selectedCurrency.paymentCurrencies}
-            selectedOption={selectedPaymentCurrency}
-            onSelect={(option) => {
-              if (onPaymentCurrencySelect) {
-                onPaymentCurrencySelect(option as PaymentCurrencyOption);
-              }
-            }}
-          />
+          <>
+            <BankNetworkSelector
+              type="currency"
+              options={selectedCurrency.paymentCurrencies}
+              selectedOption={selectedPaymentCurrency}
+              onSelect={(option) => {
+                if (onPaymentCurrencySelect) {
+                  onPaymentCurrencySelect(option as PaymentCurrencyOption);
+                }
+              }}
+            />
+            {!selectedPaymentCurrency && (
+              <div className="mt-2 p-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                <p className="text-xs text-blue-400/80 text-center">
+                  Выберите валюту для расчета курса
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>    
     </div>

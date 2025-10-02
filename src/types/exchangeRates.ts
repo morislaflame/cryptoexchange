@@ -1,4 +1,6 @@
-// Моковые курсы валют (в будущем будут приходить с сервера)
+import { exchangeRateService } from '../services/exchangeRateService';
+
+// Интерфейс для курса обмена
 export interface ExchangeRate {
   from: string;  // ID валюты откуда
   to: string;    // ID валюты куда
@@ -69,7 +71,7 @@ export const mockExchangeRates: ExchangeRate[] = [
   { from: 'qiwi', to: 'usd', rate: 0.013 },
 ];
 
-// Функция для получения курса обмена
+// Функция для получения курса обмена (синхронная, использует моки как фоллбэк)
 export const getExchangeRate = (fromCurrencyId: string, toCurrencyId: string): number | null => {
   if (fromCurrencyId === toCurrencyId) {
     return 1.0; // Одинаковые валюты
@@ -82,7 +84,7 @@ export const getExchangeRate = (fromCurrencyId: string, toCurrencyId: string): n
   return rate ? rate.rate : null;
 };
 
-// Функция для конвертации суммы
+// Функция для конвертации суммы (синхронная, использует моки)
 export const convertCurrency = (
   amount: number, 
   fromCurrencyId: string, 
@@ -94,4 +96,59 @@ export const convertCurrency = (
   
   const rate = getExchangeRate(fromCurrencyId, toCurrencyId);
   return rate ? amount * rate : null;
+};
+
+// НОВЫЕ ФУНКЦИИ для работы с реальными курсами (асинхронные)
+
+/**
+ * Получить реальный курс обмена из API
+ * @param fromCurrencyId ID исходной валюты
+ * @param toCurrencyId ID целевой валюты
+ * @returns Promise с курсом или null
+ */
+export const getRealExchangeRate = async (
+  fromCurrencyId: string, 
+  toCurrencyId: string
+): Promise<number | null> => {
+  return await exchangeRateService.getExchangeRate(fromCurrencyId, toCurrencyId);
+};
+
+/**
+ * Конвертировать сумму с использованием реальных курсов
+ * @param amount Сумма для конвертации
+ * @param fromCurrencyId ID исходной валюты
+ * @param toCurrencyId ID целевой валюты
+ * @returns Promise с конвертированной суммой или null
+ */
+export const convertCurrencyReal = async (
+  amount: number, 
+  fromCurrencyId: string, 
+  toCurrencyId: string
+): Promise<number | null> => {
+  return await exchangeRateService.convert(amount, fromCurrencyId, toCurrencyId);
+};
+
+/**
+ * Получить все курсы для конкретной валюты
+ * @param currencyId ID валюты
+ * @returns Promise с объектом курсов или null
+ */
+export const getAllRatesForCurrency = async (
+  currencyId: string
+): Promise<Record<string, number> | null> => {
+  return await exchangeRateService.getAllRatesFor(currencyId);
+};
+
+/**
+ * Очистить кэш курсов (принудительное обновление)
+ */
+export const clearExchangeRateCache = (): void => {
+  exchangeRateService.clearCache();
+};
+
+/**
+ * Получить время последнего обновления курсов
+ */
+export const getLastUpdateTime = (): Date | null => {
+  return exchangeRateService.getLastUpdateTime();
 };
