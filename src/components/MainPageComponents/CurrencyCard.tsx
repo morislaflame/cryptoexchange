@@ -117,6 +117,15 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
     }
   };
 
+  // Форматирование суммы в зависимости от типа валюты
+  const formatDisplayAmount = (amount: string) => {
+    const num = parseFloat(amount);
+    if (isNaN(num) || !amount) {
+      return selectedCurrency?.category === 'fiat' ? '0.00' : '0.000000';
+    }
+    return selectedCurrency?.category === 'fiat' ? num.toFixed(2) : num.toFixed(6);
+  };
+
   return (
     <div className="w-full">
         <h2 className="text-center px-4 pt-4 text-2xl font-bold">{title}</h2>
@@ -128,7 +137,7 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
               <div className="amount-display-wrapper">
                 <div className="amount-display-content">
                   <span className="amount-display-value">
-                    {amount || '0.000000'}
+                    {formatDisplayAmount(amount)}
                   </span>
                   {selectedCurrency && (
                     <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm px-2 py-1 border border-emerald-500/20 rounded-lg backdrop-blur-sm justify-center">

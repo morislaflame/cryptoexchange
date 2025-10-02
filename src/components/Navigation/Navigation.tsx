@@ -2,44 +2,40 @@ import { observer } from 'mobx-react-lite';
 import { useStore } from '@/store/StoreProvider';
 import CardNav from './CardNav';
 import logo from '@/assets/logo.png';
-import { ADMIN_CHATS_ROUTE } from '@/utils/consts';
+import { ADMIN_CHATS_ROUTE, RULES_ROUTE, AML_ROUTE, FAQ_ROUTE } from '@/utils/consts';
 
 const Navigation = observer(() => {
   const { user } = useStore();
 
   const baseItems = [
     {
-      label: "About",
+      label: "Правила обмена",
       bgColor: "#0D0716",
       textColor: "#fff",
-      description: "Узнайте больше о нашей компании и возможностях карьерного роста",
-      href: "/about",
+      description: "Узнайте правила обмена валют и правила безопасности",
+      href: RULES_ROUTE,
       links: [
-        { label: "Company", href: "/company", ariaLabel: "About Company" },
-        { label: "Careers", href: "/careers", ariaLabel: "About Careers" }
+        { label: "Правила обмена", href: RULES_ROUTE, ariaLabel: "About Rules" }
       ]
     },
     {
-      label: "Projects", 
+      label: "AML / CTF & KYC", 
       bgColor: "#170D27",
       textColor: "#fff",
-      description: "Изучите наши проекты и кейсы успешных решений",
-      href: "/projects",
+      description: "Политика AML / CTF & KYC направлена на противодействие использование сервиса в незаконных целях, а так же на обеспечение безопасности пользователей при получении цифровых активов",
+      href: AML_ROUTE,
       links: [
-        { label: "Featured", href: "/featured", ariaLabel: "Featured Projects" },
-        { label: "Case Studies", href: "/case-studies", ariaLabel: "Project Case Studies" }
+        { label: "AML", href: AML_ROUTE, ariaLabel: "AML" },
       ]
     },
     {
-      label: "Contact",
+      label: "FAQ",
       bgColor: "#271E37", 
       textColor: "#fff",
-      description: "Свяжитесь с нами любым удобным способом",
-      href: "/contact",
+      description: "Часто задаваемые вопросы",
+      href: FAQ_ROUTE,
       links: [
-        { label: "Email", href: "mailto:contact@example.com", ariaLabel: "Email us" },
-        { label: "Twitter", href: "https://twitter.com", ariaLabel: "Twitter" },
-        { label: "LinkedIn", href: "https://linkedin.com", ariaLabel: "LinkedIn" }
+        { label: "FAQ", href: FAQ_ROUTE, ariaLabel: "FAQ" },
       ]
     }
   ];
@@ -63,7 +59,7 @@ const Navigation = observer(() => {
       logo={logo}
       logoAlt="Company Logo"
       items={items}
-      baseColor="#01130e"
+      baseColor="#011912"
       menuColor="#fff"
       ease="power3.out"
       className="z-10"

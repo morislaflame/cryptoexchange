@@ -797,7 +797,7 @@ const MagicBento: React.FC<BentoProps> = ({
             {/* Первая карточка - Отдаете */}
             <ParticleCard
               key="from-card"
-              className={`card currency-exchange-card ${textAutoHide ? 'card--text-autohide' : ''} ${enableBorderGlow ? 'card--border-glow' : ''}`}
+              className={`card currency-exchange-card bg-emerald-950/50 backdrop-blur-sm border border-default-800 ${textAutoHide ? 'card--text-autohide' : ''} ${enableBorderGlow ? 'card--border-glow' : ''}`}
               style={{
                 backgroundColor: cardData[0]?.color,
                 '--glow-color': glowColor
@@ -903,6 +903,12 @@ const MagicBento: React.FC<BentoProps> = ({
               toAmountWithoutFee={toAmountWithoutFee}
               feeAmount={feeAmount}
               feePercent={SERVICE_FEE_PERCENT}
+              selectedBank={toData.bank}
+              selectedNetwork={toData.network}
+              selectedPaymentCurrency={toData.paymentCurrency}
+              fromSelectedBank={fromData.bank}
+              fromSelectedNetwork={fromData.network}
+              fromSelectedPaymentCurrency={fromData.paymentCurrency}
               onCreateOrder={handleCreateOrder}
             />
           </ParticleCard>

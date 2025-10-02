@@ -36,7 +36,8 @@
   border-radius: 20px;
   border: 1px solid var(--border-color);
   background: var(--background-dark);
-  background-color: #01130e !important;
+  background-color: #011912 !important;
+
   font-weight: 300;
   overflow: hidden;
   transition: all 0.3s ease;
