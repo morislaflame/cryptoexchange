@@ -2,10 +2,12 @@ import { createContext, useState, useEffect, useContext, type ReactNode } from "
 import LoadingIndicator from "../components/ui/LoadingIndicator";
 import UserStore from "@/store/UserStore";
 import ChatStore from "@/store/ChatStore";
+import ExchangeStore from "@/store/ExchangeStore";
 // Определяем интерфейс для нашего контекста
 export interface IStoreContext {
   user: UserStore;
   chat: ChatStore;
+  exchange: ExchangeStore;
 }
 
 let storeInstance: IStoreContext | null = null;
@@ -39,6 +41,7 @@ const StoreProvider = ({ children }: StoreProviderProps) => {
   const [stores, setStores] = useState<{
     user: UserStore;
     chat: ChatStore;
+    exchange: ExchangeStore;
   } | null>(null);
 
   useEffect(() => {
@@ -46,14 +49,17 @@ const StoreProvider = ({ children }: StoreProviderProps) => {
       const [
         { default: UserStore },
         { default: ChatStore },
+        { default: ExchangeStore },
       ] = await Promise.all([
         import("@/store/UserStore"),
         import("@/store/ChatStore"),
+        import("@/store/ExchangeStore"),
       ]);
 
       setStores({
         user: new UserStore(),
         chat: new ChatStore(),
+        exchange: new ExchangeStore(),
       });
     };
 

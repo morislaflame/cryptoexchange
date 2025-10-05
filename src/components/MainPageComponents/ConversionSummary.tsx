@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
+import { observer } from 'mobx-react-lite';
 import { CiRepeat } from 'react-icons/ci';
 import Divider from '../ui/Divider';
 import { type Currency, type BankOption, type NetworkOption, type PaymentCurrencyOption } from '../../types/currency';
 import { getExchangeRate } from '../../types/exchangeRates';
+import { useStore } from '../../store/StoreProvider';
+import { type CreateExchangeData } from '../../http/exchangeAPI';
 
 interface ConversionSummaryProps {
   fromCurrency?: Currency;
@@ -21,7 +24,7 @@ interface ConversionSummaryProps {
   onCreateOrder?: () => void;
 }
 
-const ConversionSummary: React.FC<ConversionSummaryProps> = ({
+const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
   fromCurrency,
   toCurrency,
   fromAmount,
@@ -37,10 +40,13 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = ({
   fromSelectedPaymentCurrency,
   onCreateOrder
 }) => {
+  const { exchange: exchangeStore, user: userStore } = useStore();
+  
   // Состояния для инпутов
   const [walletAddress, setWalletAddress] = useState('');
   const [cardNumber, setCardNumber] = useState('');
   const [paymentDetails, setPaymentDetails] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
 
   // Вычисляем курс обмена
   const exchangeRate = fromCurrency && toCurrency 
@@ -132,6 +138,79 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = ({
     isFromCurrencyValid() && 
     isToCurrencyValid() && 
     isRecipientDataFilled();
+
+  // Обработчик создания заявки
+  const handleCreateOrder = async () => {
+    if (!isFormValid || !fromCurrency || !toCurrency || !userStore.isAuth) {
+      return;
+    }
+
+    setIsCreating(true);
+
+    try {
+      const exchangeData: CreateExchangeData = {
+        // Валюта отправки
+        fromCurrencyId: fromCurrency.id,
+        fromCurrencySymbol: fromCurrency.symbol,
+        fromCurrencyCategory: fromCurrency.category,
+        fromAmount: fromAmount,
+        fromBankId: fromSelectedBank?.id,
+        fromBankName: fromSelectedBank?.name,
+        fromNetworkId: fromSelectedNetwork?.id,
+        fromNetworkName: fromSelectedNetwork?.name,
+        fromPaymentCurrencyId: fromSelectedPaymentCurrency?.id,
+        fromPaymentCurrencyName: fromSelectedPaymentCurrency?.name,
+
+        // Валюта получения
+        toCurrencyId: toCurrency.id,
+        toCurrencySymbol: toCurrency.symbol,
+        toCurrencyCategory: toCurrency.category,
+        toAmount: toAmount,
+        toAmountWithoutFee: toAmountWithoutFee,
+        toBankId: selectedBank?.id,
+        toBankName: selectedBank?.name,
+        toNetworkId: selectedNetwork?.id,
+        toNetworkName: selectedNetwork?.name,
+        toPaymentCurrencyId: selectedPaymentCurrency?.id,
+        toPaymentCurrencyName: selectedPaymentCurrency?.name,
+
+        // Реквизиты для получения
+        recipientAddress: walletAddress || undefined,
+        recipientCard: cardNumber || undefined,
+        recipientPaymentDetails: paymentDetails || undefined,
+
+        // Курс обмена и комиссия
+        exchangeRate: exchangeRate?.toString(),
+        feeAmount: feeAmount,
+        feePercent: feePercent,
+      };
+
+      const createdExchange = await exchangeStore.createExchange(exchangeData);
+
+      if (createdExchange) {
+        // Успешно создана заявка
+        alert(`Заявка #${createdExchange.id} успешно создана! Статус: ${createdExchange.status}`);
+        
+        // Очищаем инпуты
+        setWalletAddress('');
+        setCardNumber('');
+        setPaymentDetails('');
+        
+        // Вызываем колбэк, если он есть
+        if (onCreateOrder) {
+          onCreateOrder();
+        }
+      } else {
+        // Ошибка при создании
+        alert(exchangeStore.error || 'Ошибка при создании заявки');
+      }
+    } catch (error) {
+      console.error('Error creating exchange order:', error);
+      alert('Произошла ошибка при создании заявки');
+    } finally {
+      setIsCreating(false);
+    }
+  };
 
   return (
     <div className="w-full p-5 rounded-2xl">
@@ -332,15 +411,30 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = ({
         <div className="mt-2">
           <button
             className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 disabled:from-white/10 disabled:to-white/10 border-none rounded-xl text-white text-base font-semibold cursor-pointer transition-all duration-300 shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:translate-y-0 active:shadow-lg active:shadow-emerald-500/30 uppercase tracking-wider disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none disabled:text-white/40"
-            onClick={onCreateOrder}
-            disabled={!isFormValid}
+            onClick={handleCreateOrder}
+            disabled={!isFormValid || isCreating || !userStore.isAuth}
           >
-            Создать заявку
+            {isCreating ? (
+              <>
+                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Создание...
+              </>
+            ) : (
+              'Создать заявку'
+            )}
           </button>
+          {!userStore.isAuth && (
+            <p className="text-xs text-red-400/80 text-center mt-2">
+              Необходимо авторизоваться для создания заявки
+            </p>
+          )}
         </div>
       </div>
     </div>
   );
-};
+});
 
 export default ConversionSummary;

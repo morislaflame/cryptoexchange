@@ -59,7 +59,7 @@ const Navigation = observer(() => {
       logo={logo}
       logoAlt="Company Logo"
       items={items}
-      baseColor="#011912"
+      baseColor="#02291e"
       menuColor="#fff"
       ease="power3.out"
       className="z-10"
