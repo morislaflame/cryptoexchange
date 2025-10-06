@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { type ChatMessage, type Chat } from "@/types/types";
-import { createSupportChat, getChats, getChatById, markMessagesAsRead, getUnreadCount } from "@/http/chatAPI";
+import { createSupportChat, getChats, getChatById, markMessagesAsRead, getUnreadCount, getActiveChatsAdmin, getChatMessagesAdmin, getChatStatsAdmin } from "@/http/chatAPI";
 
 export default class ChatStore {
     _chats: Chat[] = [];
@@ -138,6 +138,52 @@ export default class ChatStore {
             this.setCurrentChat(null);
             this.setMessages([]);
         });
+    }
+
+    // Админские методы
+    async fetchActiveChatsAdmin() {
+        try {
+            this.setLoading(true);
+            this.setError('');
+
+            const chats = await getActiveChatsAdmin();
+            runInAction(() => {
+                this.setChats(chats);
+            });
+        } catch (error) {
+            console.error('Error fetching active chats:', error);
+            this.setError('Ошибка загрузки активных чатов');
+        } finally {
+            this.setLoading(false);
+        }
+    }
+
+    async fetchChatMessagesAdmin(chatId: number, limit: number = 100) {
+        try {
+            this.setLoading(true);
+            this.setError('');
+
+            const messages = await getChatMessagesAdmin(chatId, limit);
+            runInAction(() => {
+                this.setMessages(messages);
+            });
+        } catch (error) {
+            console.error('Error fetching chat messages:', error);
+            this.setError('Ошибка загрузки сообщений чата');
+        } finally {
+            this.setLoading(false);
+        }
+    }
+
+    async fetchChatStatsAdmin() {
+        try {
+            const stats = await getChatStatsAdmin();
+            return stats;
+        } catch (error) {
+            console.error('Error fetching chat stats:', error);
+            this.setError('Ошибка загрузки статистики чатов');
+            throw error;
+        }
     }
 
     get chats() {

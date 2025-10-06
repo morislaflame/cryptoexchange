@@ -11,7 +11,7 @@ const AmlPage = () => {
                 <Button 
                     onClick={() => navigate(MAIN_ROUTE)}
                     variant="outline"
-                    className="mb-6"
+                    className="mb-4"
                 >
                     ← Вернуться на главную
                 </Button>

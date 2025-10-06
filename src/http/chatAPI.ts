@@ -57,7 +57,7 @@ export const getActiveChatsAdmin = async (): Promise<Chat[]> => {
     return data;
 };
 
-export const getChatMessagesAdmin = async (chatId: number, limit: number = 50): Promise<ChatMessage[]> => {
+export const getChatMessagesAdmin = async (chatId: number, limit: number = 100): Promise<ChatMessage[]> => {
     const { data } = await $authHost.get(`api/chat/admin/${chatId}/messages`, {
         params: { limit }
     });

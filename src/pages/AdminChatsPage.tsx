@@ -1,39 +1,23 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '@/store/StoreProvider';
-import { getActiveChatsAdmin } from '@/http/chatAPI';
 import { type Chat, type ChatMessage } from '@/types/types';
 import { io, Socket } from 'socket.io-client';
 import ChatMessages from '@/components/ChatComponents/ChatMessages';
 import ChatInput from '@/components/ChatComponents/ChatInput';
 
 const AdminChatsPage: React.FC = observer(() => {
-    const { user } = useStore();
-    const [chats, setChats] = useState<Chat[]>([]);
+    const { user, chat } = useStore();
     const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
-    const [loading, setLoading] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
     const socketRef = useRef<Socket | null>(null);
 
     // Загрузка списка чатов
     useEffect(() => {
-        const fetchChats = async () => {
-            try {
-                setLoading(true);
-                const data = await getActiveChatsAdmin();
-                setChats(data);
-            } catch (error) {
-                console.error('Error fetching chats:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         if (user.user?.role === 'ADMIN') {
-            fetchChats();
+            chat.fetchActiveChatsAdmin();
         }
-    }, [user.user]);
+    }, [user.user, chat]);
 
     // Инициализация сокета
     useEffect(() => {
@@ -69,40 +53,36 @@ const AdminChatsPage: React.FC = observer(() => {
 
         socket.on('new_message', (message: ChatMessage) => {
             console.log('New message received:', message);
-            // Обновляем сообщения, если это текущий выбранный чат
-            if (selectedChat && message.chatId === selectedChat.id) {
-                setMessages(prev => [...prev, message]);
+            // Добавляем сообщение в store
+            chat.addMessage(message);
+        });
+
+        socket.on('chat_messages', (data: { chatId: number, messages: ChatMessage[] }) => {
+            console.log('Chat messages received:', data);
+            // Обновляем сообщения в store, если это текущий выбранный чат
+            if (selectedChat && data.chatId === selectedChat.id) {
+                chat.setMessages(data.messages);
             }
-            // Обновляем список чатов
-            setChats(prevChats => {
-                return prevChats.map(chat => {
-                    if (chat.id === message.chatId) {
-                        return { ...chat, messages: [message] };
-                    }
-                    return chat;
-                });
-            });
         });
 
         return () => {
             socket.disconnect();
             socketRef.current = null;
         };
-    }, [user.user, selectedChat]);
+    }, [user.user, selectedChat, chat]);
 
     // Подключение к выбранному чату
     useEffect(() => {
         if (selectedChat && isConnected && socketRef.current) {
             socketRef.current.emit('join_chat', selectedChat.id);
-            // Загружаем сообщения выбранного чата
-            if (selectedChat.messages) {
-                setMessages(selectedChat.messages);
-            }
+            // Загружаем полную историю сообщений чата
+            chat.fetchChatMessagesAdmin(selectedChat.id);
         }
-    }, [selectedChat, isConnected]);
+    }, [selectedChat, isConnected, chat]);
 
-    const handleSelectChat = (chat: Chat) => {
-        setSelectedChat(chat);
+    const handleSelectChat = (chatItem: Chat) => {
+        setSelectedChat(chatItem);
+        chat.setMessages([]); // Очищаем предыдущие сообщения
     };
 
     const handleSendMessage = (text: string) => {
@@ -135,32 +115,32 @@ const AdminChatsPage: React.FC = observer(() => {
                     <div className="w-1/3 bg-white/5 border border-white/10 rounded-2xl p-4 overflow-y-auto backdrop-blur-sm">
                         <h2 className="text-xl font-semibold text-white mb-4">Активные чаты</h2>
                         
-                        {loading ? (
+                        {chat.loading ? (
                             <div className="text-white/60 text-center py-4">Загрузка...</div>
-                        ) : chats.length === 0 ? (
+                        ) : chat.chats.length === 0 ? (
                             <div className="text-white/60 text-center py-4">Нет активных чатов</div>
                         ) : (
-                            <div className="space-y-2">
-                                {chats.map((chat) => {
-                                    const userInChat = chat.chatUsers?.find(u => u.role === 'USER');
-                                    const lastMessage = chat.messages?.[0];
+                            <div className="space-y-2 overflow-hidden overflow-y-auto hide-scrollbar ios-scroll">
+                                {chat.chats.map((chatItem) => {
+                                    const userInChat = chatItem.chatUsers?.find(u => u.role === 'USER');
+                                    const lastMessage = chatItem.messages?.[0];
                                     
                                     return (
                                         <div
-                                            key={chat.id}
-                                            onClick={() => handleSelectChat(chat)}
+                                            key={chatItem.id}
+                                            onClick={() => handleSelectChat(chatItem)}
                                             className={`p-4 rounded-xl cursor-pointer transition-all duration-200 ${
-                                                selectedChat?.id === chat.id
+                                                selectedChat?.id === chatItem.id
                                                     ? 'bg-emerald-500/20 border-emerald-400/50'
                                                     : 'bg-white/5 hover:bg-white/10 border-white/10'
                                             } border`}
                                         >
                                             <div className="flex justify-between items-start mb-2">
                                                 <span className="font-medium text-white">
-                                                    {chat.title || `Чат #${chat.id}`}
+                                                    {chatItem.title || `Чат #${chatItem.id}`}
                                                 </span>
                                                 <span className="text-xs text-white/50">
-                                                    {chat.type}
+                                                    {chatItem.type}
                                                 </span>
                                             </div>
                                             {userInChat && (
@@ -204,10 +184,7 @@ const AdminChatsPage: React.FC = observer(() => {
                                     </div>
                                 </div>
 
-                                {/* Сообщения */}
-                                <div className="flex-1 overflow-hidden">
-                                    <ChatMessages messages={messages} />
-                                </div>
+                                <ChatMessages messages={chat.messages} />
 
                                 {/* Поле ввода */}
                                 <ChatInput
