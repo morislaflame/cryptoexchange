@@ -303,3 +303,378 @@ const FIAT_CURRENCY_MAP: Record<string, string> = {
 - Кросс-курсы вычисляются локально
 - Минимальная нагрузка на API
 
+---
+
+# Сервис валидации
+
+## Описание
+
+Сервис для валидации полей форм заявок на обмен с поддержкой различных типов валют и пользователей.
+
+## Возможности
+
+- ✅ Валидация форм заявок на обмен
+- ✅ Поддержка разных типов валют (фиат, крипта, платежки)
+- ✅ Валидация контактных данных для гостевых пользователей
+- ✅ Детальная валидация с разбивкой по полям
+- ✅ Понятные сообщения об ошибках на русском языке
+
+## Использование
+
+### Импорт
+
+```typescript
+import { validationService } from './validationService';
+import { type ExchangeValidationData } from '../types/validation';
+```
+
+### Простая валидация
+
+```typescript
+// Подготовка данных для валидации
+const validationData: ExchangeValidationData = {
+  fromCurrency: selectedFromCurrency,
+  toCurrency: selectedToCurrency,
+  fromAmount: '100',
+  toAmount: '95',
+  fromSelectedBank: selectedBank,
+  selectedNetwork: selectedNetwork,
+  walletAddress: '0x123...',
+  recipientEmail: 'user@example.com',
+  isAuth: userStore.isAuth
+};
+
+// Валидация формы
+const result = validationService.validateForm(validationData);
+
+if (result.isValid) {
+  console.log('Форма валидна');
+} else {
+  console.log('Ошибки:', result.errors);
+  // ['Не выбран банк для отправки рублей', 'Не указан адрес кошелька']
+}
+```
+
+### Детальная валидация
+
+```typescript
+// Детальная валидация с разбивкой по полям
+const detailedResult = validationService.validateFormDetailed(validationData);
+
+console.log('Валюты валидны:', detailedResult.fromCurrencyValid && detailedResult.toCurrencyValid);
+console.log('Суммы валидны:', detailedResult.fromAmountValid && detailedResult.toAmountValid);
+console.log('Реквизиты валидны:', detailedResult.recipientDataValid);
+console.log('Контактные данные валидны:', detailedResult.contactDataValid);
+console.log('Общая валидность:', detailedResult.overallValid);
+
+// Конкретные ошибки
+if (detailedResult.errors.fromCurrency) {
+  console.log('Ошибка валюты отправки:', detailedResult.errors.fromCurrency);
+}
+if (detailedResult.errors.recipientData) {
+  console.log('Ошибка реквизитов:', detailedResult.errors.recipientData);
+}
+```
+
+### Валидация отдельных полей
+
+```typescript
+// Валидация только контактных данных
+const contactResult = validationService.validateContactDataOnly(
+  'user@example.com',
+  '@username'
+);
+
+// Валидация только реквизитов
+const recipientResult = validationService.validateRecipientDataOnly(
+  toCurrency,
+  selectedNetwork,
+  selectedBank,
+  selectedPaymentCurrency,
+  walletAddress,
+  cardNumber,
+  paymentDetails
+);
+```
+
+## Типы валидации
+
+### Валюты
+
+- **Фиатные валюты (RUB)**: требует выбора банка
+- **Криптовалюты**: требует выбора сети
+- **Платежные системы**: требует выбора валюты внутри системы
+
+### Суммы
+
+- Должны быть положительными числами
+- Поддерживается формат с десятичными знаками
+
+### Реквизиты для получения
+
+- **Криптовалюты**: адрес кошелька
+- **Рубли (банковские переводы)**: номер карты или телефона
+- **Рубли (наличные)**: реквизиты не требуются
+- **Платежные системы**: реквизиты для получения
+
+### Контактные данные
+
+- **Для гостевых пользователей**: обязательны email или Telegram username
+- **Для авторизованных пользователей**: 
+  - Если у пользователя есть email и username в профиле - поля скрыты
+  - Если отсутствует email - показывается поле для ввода email
+  - Если отсутствует username - показывается поле для ввода Telegram username
+  - Если отсутствуют оба - показываются оба поля
+- **Email**: валидный формат email
+- **Telegram**: username без @ (1-32 символа, буквы, цифры, _)
+- Хотя бы один способ связи должен быть указан
+
+## Сообщения об ошибках
+
+Сервис возвращает понятные сообщения на русском языке:
+
+- "Не выбрана валюта отправки"
+- "Не выбран банк для отправки рублей"
+- "Не выбрана сеть для отправки криптовалюты"
+- "Не указан адрес кошелька"
+- "Не указан номер карты или телефона"
+- "Некорректный формат email"
+- "Некорректный формат Telegram username"
+- "Необходимо указать email или Telegram username"
+
+## Интеграция с компонентами
+
+### В ConversionSummary
+
+```typescript
+// Автозаполнение полей данными пользователя
+useEffect(() => {
+  if (userStore.isAuth && userStore.user) {
+    if (userStore.user.email) {
+      setRecipientEmail(userStore.user.email);
+    }
+    if (userStore.user.username) {
+      setRecipientTelegramUsername(userStore.user.username);
+    }
+  }
+}, [userStore.isAuth, userStore.user]);
+
+// Подготовка данных для валидации с учетом данных пользователя
+const validationData: ExchangeValidationData = {
+  fromCurrency,
+  toCurrency,
+  fromAmount,
+  toAmount,
+  fromSelectedBank,
+  fromSelectedNetwork,
+  fromSelectedPaymentCurrency,
+  selectedBank,
+  selectedNetwork,
+  selectedPaymentCurrency,
+  walletAddress,
+  cardNumber,
+  paymentDetails,
+  // Используем данные пользователя, если они есть, иначе поля формы
+  recipientEmail: userStore.user?.email || recipientEmail,
+  recipientTelegramUsername: userStore.user?.username || recipientTelegramUsername,
+  isAuth: userStore.isAuth
+};
+
+// Валидация
+const validationResult = validationService.validateForm(validationData);
+const isFormValid = validationResult.isValid;
+
+// Условное отображение полей контактных данных
+{(!userStore.isAuth || !userStore.user?.email || !userStore.user?.username) && (
+  <div className="space-y-4">
+    <div className="p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-xl">
+      <h4 className="text-sm font-semibold text-emerald-400 mb-3">Контактные данные</h4>
+      <div className="space-y-3">
+        {/* Показываем поле email только если у пользователя нет email */}
+        {(!userStore.isAuth || !userStore.user?.email) && (
+          <div>
+            <label className="text-sm text-white/70 font-medium">Email</label>
+            <input
+              type="email"
+              value={recipientEmail}
+              onChange={(e) => setRecipientEmail(e.target.value)}
+              placeholder="your@email.com"
+              className="w-full mt-1 px-3 py-2 bg-white/5 border rounded-lg text-white placeholder-white/30 focus:outline-none focus:bg-white/10 transition-all duration-300"
+            />
+          </div>
+        )}
+        
+        {/* Показываем поле Telegram только если у пользователя нет username */}
+        {(!userStore.isAuth || !userStore.user?.username) && (
+          <div>
+            <label className="text-sm text-white/70 font-medium">Telegram username</label>
+            <input
+              type="text"
+              value={recipientTelegramUsername}
+              onChange={(e) => setRecipientTelegramUsername(e.target.value)}
+              placeholder="@username"
+              className="w-full mt-1 px-3 py-2 bg-white/5 border rounded-lg text-white placeholder-white/30 focus:outline-none focus:bg-white/10 transition-all duration-300"
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
+
+// Отображение ошибок
+{!validationResult.isValid && (!userStore.isAuth || !userStore.user?.email || !userStore.user?.username) && (
+  <p className="text-xs text-red-400/80 text-center mt-2">
+    {validationResult.errors.find(error => 
+      error.includes('email') || error.includes('Telegram')
+    ) || 'Заполните все обязательные поля'}
+  </p>
+)}
+```
+
+### Автозаполнение полей
+
+Компонент автоматически заполняет поля контактных данных из профиля пользователя:
+
+1. **При загрузке компонента**: если пользователь авторизован, поля заполняются данными из `userStore.user`
+2. **Условное отображение**: поля показываются только если у пользователя нет соответствующих данных
+3. **Валидация**: учитывает как данные пользователя, так и введенные в форму значения
+4. **Отправка данных**: использует данные пользователя в приоритете над полями формы
+
+## Структура данных
+
+### ExchangeValidationData
+
+```typescript
+interface ExchangeValidationData {
+  // Основные поля
+  fromCurrency?: Currency;
+  toCurrency?: Currency;
+  fromAmount: string;
+  toAmount: string;
+  
+  // Опции для отправки
+  fromSelectedBank?: BankOption;
+  fromSelectedNetwork?: NetworkOption;
+  fromSelectedPaymentCurrency?: PaymentCurrencyOption;
+  
+  // Опции для получения
+  selectedBank?: BankOption;
+  selectedNetwork?: NetworkOption;
+  selectedPaymentCurrency?: PaymentCurrencyOption;
+  
+  // Реквизиты для получения
+  walletAddress?: string;
+  cardNumber?: string;
+  paymentDetails?: string;
+  
+  // Контактные данные для гостей
+  recipientEmail?: string;
+  recipientTelegramUsername?: string;
+  
+  // Статус авторизации
+  isAuth: boolean;
+}
+```
+
+### ValidationResult
+
+```typescript
+interface ValidationResult {
+  isValid: boolean;
+  errors: string[];
+  warnings: string[];
+}
+```
+
+### DetailedValidationResult
+
+```typescript
+interface DetailedValidationResult {
+  // Валидация валют
+  fromCurrencyValid: boolean;
+  toCurrencyValid: boolean;
+  
+  // Валидация сумм
+  fromAmountValid: boolean;
+  toAmountValid: boolean;
+  
+  // Валидация опций
+  fromOptionsValid: boolean;
+  toOptionsValid: boolean;
+  
+  // Валидация реквизитов
+  recipientDataValid: boolean;
+  
+  // Валидация контактных данных
+  contactDataValid: boolean;
+  
+  // Общая валидация
+  overallValid: boolean;
+  
+  // Ошибки
+  errors: {
+    fromCurrency?: string;
+    toCurrency?: string;
+    fromAmount?: string;
+    toAmount?: string;
+    fromOptions?: string;
+    toOptions?: string;
+    recipientData?: string;
+    contactData?: string;
+  };
+}
+```
+
+## Производительность
+
+- Легковесная валидация с минимальными накладными расходами
+- Эффективные регулярные выражения для email и username
+- Кэширование результатов валидации где это уместно
+- Оптимизировано для валидации в реальном времени
+
+## Расширение
+
+### Добавление новых правил валидации
+
+1. Добавьте новый метод в `ValidationService`
+2. Обновите интерфейсы типов
+3. Интегрируйте в компоненты
+
+### Кастомные валидаторы
+
+```typescript
+// Пример кастомного валидатора
+private validateCustomField(value: string): { valid: boolean; error?: string } {
+  if (!value || value.trim() === '') {
+    return { valid: false, error: 'Поле обязательно для заполнения' };
+  }
+  
+  if (value.length < 3) {
+    return { valid: false, error: 'Минимум 3 символа' };
+  }
+  
+  return { valid: true };
+}
+```
+
+## Тестирование
+
+Сервис включает тесты для:
+- Валидации различных типов валют
+- Проверки контактных данных
+- Обработки ошибок
+- Производительности
+
+## Troubleshooting
+
+### Валидация не работает
+- Проверьте правильность типов данных
+- Убедитесь, что все обязательные поля переданы
+- Проверьте консоль на ошибки TypeScript
+
+### Неправильные сообщения об ошибках
+- Проверьте логику валидации в соответствующих методах
+- Убедитесь, что регулярные выражения корректны
+- Проверьте порядок проверок в валидации
+

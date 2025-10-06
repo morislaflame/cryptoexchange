@@ -3,11 +3,13 @@ import LoadingIndicator from "../components/ui/LoadingIndicator";
 import UserStore from "@/store/UserStore";
 import ChatStore from "@/store/ChatStore";
 import ExchangeStore from "@/store/ExchangeStore";
+import ExchangeRatesStore from "@/store/ExchangeRatesStore";
 // Определяем интерфейс для нашего контекста
 export interface IStoreContext {
   user: UserStore;
   chat: ChatStore;
   exchange: ExchangeStore;
+  exchangeRates: ExchangeRatesStore;
 }
 
 let storeInstance: IStoreContext | null = null;
@@ -42,6 +44,7 @@ const StoreProvider = ({ children }: StoreProviderProps) => {
     user: UserStore;
     chat: ChatStore;
     exchange: ExchangeStore;
+    exchangeRates: ExchangeRatesStore;
   } | null>(null);
 
   useEffect(() => {
@@ -50,16 +53,19 @@ const StoreProvider = ({ children }: StoreProviderProps) => {
         { default: UserStore },
         { default: ChatStore },
         { default: ExchangeStore },
+        { default: ExchangeRatesStore },
       ] = await Promise.all([
         import("@/store/UserStore"),
         import("@/store/ChatStore"),
         import("@/store/ExchangeStore"),
+        import("@/store/ExchangeRatesStore"),
       ]);
 
       setStores({
         user: new UserStore(),
         chat: new ChatStore(),
         exchange: new ExchangeStore(),
+        exchangeRates: new ExchangeRatesStore(),
       });
     };
 

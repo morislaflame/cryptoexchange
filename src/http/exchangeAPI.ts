@@ -1,30 +1,23 @@
 import { $authHost, $host } from "./index";
 
+export interface CurrencyInfo {
+  id: string;
+  symbol: string;
+  category: 'fiat' | 'crypto' | 'payment';
+}
+
+export interface ExchangeDirection {
+  currency: CurrencyInfo;
+  amount: string;
+  bankName?: string;
+  networkName?: string;
+  paymentCurrencyName?: string;
+}
+
 export interface CreateExchangeData {
-  // Валюта отправки
-  fromCurrencyId: string;
-  fromCurrencySymbol: string;
-  fromCurrencyCategory: 'fiat' | 'crypto' | 'payment';
-  fromAmount: string;
-  fromBankId?: string;
-  fromBankName?: string;
-  fromNetworkId?: string;
-  fromNetworkName?: string;
-  fromPaymentCurrencyId?: string;
-  fromPaymentCurrencyName?: string;
-  
-  // Валюта получения
-  toCurrencyId: string;
-  toCurrencySymbol: string;
-  toCurrencyCategory: 'fiat' | 'crypto' | 'payment';
-  toAmount: string;
-  toAmountWithoutFee?: string;
-  toBankId?: string;
-  toBankName?: string;
-  toNetworkId?: string;
-  toNetworkName?: string;
-  toPaymentCurrencyId?: string;
-  toPaymentCurrencyName?: string;
+  // Направления обмена
+  from: ExchangeDirection;
+  to: ExchangeDirection;
   
   // Реквизиты для получения
   recipientAddress?: string;
@@ -36,58 +29,40 @@ export interface CreateExchangeData {
   feeAmount?: string;
   feePercent?: number;
   
-  // Примечания клиента
-  clientNotes?: string;
-  
   // Контактные данные для гостевых заявок
-  guestEmail?: string;
-  guestTelegramUsername?: string;
+  recipientEmail?: string;
+  recipientTelegramUsername?: string;
 }
 
 export interface Exchange {
   id: number;
   userId: number;
   
-  fromCurrencyId: string;
-  fromCurrencySymbol: string;
-  fromCurrencyCategory: 'fiat' | 'crypto' | 'payment';
-  fromAmount: string;
-  fromBankId?: string;
-  fromBankName?: string;
-  fromNetworkId?: string;
-  fromNetworkName?: string;
-  fromPaymentCurrencyId?: string;
-  fromPaymentCurrencyName?: string;
+  // Направления обмена
+  from: ExchangeDirection;
+  to: ExchangeDirection;
   
-  toCurrencyId: string;
-  toCurrencySymbol: string;
-  toCurrencyCategory: 'fiat' | 'crypto' | 'payment';
-  toAmount: string;
-  toAmountWithoutFee?: string;
-  toBankId?: string;
-  toBankName?: string;
-  toNetworkId?: string;
-  toNetworkName?: string;
-  toPaymentCurrencyId?: string;
-  toPaymentCurrencyName?: string;
-  
+  // Реквизиты для получения
   recipientAddress?: string;
   recipientCard?: string;
   recipientPaymentDetails?: string;
   
+  // Курс обмена и комиссия
   exchangeRate?: string;
   feeAmount?: string;
   feePercent: number;
   
+  // Статус и примечания
   status: 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED' | 'FAILED';
   
-  notes?: string;
-  clientNotes?: string;
+  // Гостевые данные
+  recipientEmail?: string;
+  recipientTelegramUsername?: string;
   
+  // Временные метки
   confirmedAt?: string;
   completedAt?: string;
   cancelledAt?: string;
-  
   createdAt: string;
   updatedAt: string;
 }
@@ -151,9 +126,8 @@ export const getAllExchanges = async (
 export const updateExchangeStatus = async (
   id: number,
   status: string,
-  notes?: string
 ): Promise<Exchange> => {
-  const { data } = await $authHost.patch(`api/exchange/${id}/status`, { status, notes });
+  const { data } = await $authHost.patch(`api/exchange/${id}/status`, { status });
   return data;
 };
 

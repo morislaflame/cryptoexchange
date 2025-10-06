@@ -102,9 +102,9 @@ export default class UserStore {
                 this.setIsAuth(true);
                 this.setServerError(false);
             });
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Error during login:", error);
-            this.setServerError(true, error.response?.data?.message || 'Ошибка входа');
+            this.setServerError(true, (error as { response?: { data?: { message?: string } } }).response?.data?.message || 'Ошибка входа');
             throw error;
         }
     }
@@ -118,9 +118,9 @@ export default class UserStore {
                 this.setIsAuth(true);
                 this.setServerError(false);
             });
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Error during registration:", error);
-            this.setServerError(true, error.response?.data?.message || 'Ошибка регистрации');
+            this.setServerError(true, (error as { response?: { data?: { message?: string } } }).response?.data?.message || 'Ошибка регистрации');
             throw error;
         }
     }

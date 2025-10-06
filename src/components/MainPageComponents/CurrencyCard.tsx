@@ -133,17 +133,26 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
         {/* Инпут суммы или отображение */}
         <div className="space-y-2">
           {displayOnly ? (
-            <div className="custom-amount-display">
-              <div className="amount-display-wrapper">
+            <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl ">
+              <div className="p-3">
                 <div className="amount-display-content">
                   <span className="amount-display-value">
                     {formatDisplayAmount(amount)}
                   </span>
                   {selectedCurrency && (
-                    <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm px-2 py-1 border border-emerald-500/20 rounded-lg backdrop-blur-sm justify-center">
-                      <span className="currency-symbol">
+                    <div className="flex items-center gap-2 font-semibold justify-center">
+                      {selectedCurrency.icon && typeof selectedCurrency.icon === 'string' && (selectedCurrency.icon.includes('.png') || selectedCurrency.icon.includes('.jpg') || selectedCurrency.icon.includes('.svg')) ? (
+                        <img 
+                          src={selectedCurrency.icon} 
+                          alt={selectedCurrency.name}
+                          className="w-6 h-6 object-contain"
+                        />
+                      ) : (
+                        <span className="text-lg">{selectedCurrency.icon}</span>
+                      )}
+                      {/* <span className="currency-symbol">
                         {selectedCurrency.symbol}
-                      </span>
+                      </span> */}
                     </div>
                   )}
                 </div>
@@ -231,8 +240,8 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
               }}
             />
             {!selectedBank && (
-              <div className="mt-2 p-2 rounded-lg bg-gray-500/10 border border-gray-500/20">
-                <p className="text-xs text-gray-400/80 text-center">
+              <div className="mt-2 p-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+                <p className="text-xs text-yellow-400/80 text-center">
                   Выберите банк для продолжения
                 </p>
               </div>
@@ -253,8 +262,8 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
               }}
             />
             {!selectedNetwork && (
-              <div className="mt-2 p-2 rounded-lg bg-gray-500/10 border border-gray-500/20">
-                <p className="text-xs text-gray-400/80 text-center">
+              <div className="mt-2 p-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+                <p className="text-xs text-yellow-400/80 text-center">
                   Выберите сеть для продолжения
                 </p>
               </div>
@@ -275,8 +284,8 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
               }}
             />
             {!selectedPaymentCurrency && (
-              <div className="mt-2 p-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                <p className="text-xs text-blue-400/80 text-center">
+              <div className="mt-2 p-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+                <p className="text-xs text-yellow-400/80 text-center">
                   Выберите валюту для расчета курса
                 </p>
               </div>

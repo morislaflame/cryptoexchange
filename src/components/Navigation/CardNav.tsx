@@ -195,7 +195,7 @@ const CardNav: React.FC<CardNavProps> = ({
           <div className="flex items-center gap-4">
             <button
               onClick={handleAuthClick}
-              className="px-4 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 hover:border-emerald-500/50 rounded-lg text-emerald-400 hover:text-emerald-300 transition-all duration-300 backdrop-blur-sm"
+              className="px-4 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 hover:border-emerald-500/50 rounded-lg text-emerald-400 hover:text-emerald-300 transition-all duration-300 backdrop-blur-sm cursor-pointer"
             >
               {user.isAuth ? 'Выйти' : 'Войти'}
             </button>

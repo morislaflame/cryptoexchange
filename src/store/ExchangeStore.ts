@@ -57,11 +57,11 @@ export default class ExchangeStore {
       });
 
       return exchange;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error creating exchange:", error);
       
       runInAction(() => {
-        this.setError(error.response?.data?.message || "Ошибка при создании заявки");
+        this.setError((error as { response?: { data?: { message?: string } } }).response?.data?.message || "Ошибка при создании заявки");
         this.setLoading(false);
       });
 
@@ -82,11 +82,11 @@ export default class ExchangeStore {
         this.setTotalCount(response.count);
         this.setLoading(false);
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching user exchanges:", error);
       
       runInAction(() => {
-        this.setError(error.response?.data?.message || "Ошибка при получении заявок");
+        this.setError((error as { response?: { data?: { message?: string } } }).response?.data?.message || "Ошибка при получении заявок");
         this.setLoading(false);
       });
     }
@@ -104,11 +104,11 @@ export default class ExchangeStore {
         this.setCurrentExchange(exchange);
         this.setLoading(false);
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching exchange:", error);
       
       runInAction(() => {
-        this.setError(error.response?.data?.message || "Ошибка при получении заявки");
+        this.setError((error as { response?: { data?: { message?: string } } }).response?.data?.message || "Ошибка при получении заявки");
         this.setLoading(false);
       });
     }
@@ -137,11 +137,11 @@ export default class ExchangeStore {
       });
 
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error cancelling exchange:", error);
       
       runInAction(() => {
-        this.setError(error.response?.data?.message || "Ошибка при отмене заявки");
+        this.setError((error as { response?: { data?: { message?: string } } }).response?.data?.message || "Ошибка при отмене заявки");
         this.setLoading(false);
       });
 
@@ -167,23 +167,23 @@ export default class ExchangeStore {
         this.setTotalCount(response.count);
         this.setLoading(false);
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching all exchanges:", error);
       
       runInAction(() => {
-        this.setError(error.response?.data?.message || "Ошибка при получении заявок");
+        this.setError((error as { response?: { data?: { message?: string } } }).response?.data?.message || "Ошибка при получении заявок");
         this.setLoading(false);
       });
     }
   }
 
   // Обновление статуса заявки (админ)
-  async updateExchangeStatus(id: number, status: string, notes?: string): Promise<boolean> {
+  async updateExchangeStatus(id: number, status: string): Promise<boolean> {
     this.setLoading(true);
     this.setError(null);
 
     try {
-      const updatedExchange = await updateExchangeStatus(id, status, notes);
+      const updatedExchange = await updateExchangeStatus(id, status);
       
       runInAction(() => {
         // Обновляем заявку в списке
@@ -200,11 +200,11 @@ export default class ExchangeStore {
       });
 
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error updating exchange status:", error);
       
       runInAction(() => {
-        this.setError(error.response?.data?.message || "Ошибка при обновлении статуса");
+        this.setError((error as { response?: { data?: { message?: string } } }).response?.data?.message || "Ошибка при обновлении статуса");
         this.setLoading(false);
       });
 

@@ -28,7 +28,7 @@ const MainPage = () => {
                             disableAnimations={false}
                             spotlightRadius={300}
                             // particleCount={12}
-                            glowColor="#10b981}"
+                            glowColor="#10b981"
 
                         />
                     </div>

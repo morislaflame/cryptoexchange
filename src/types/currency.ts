@@ -31,15 +31,16 @@ export interface Currency {
 
 export const mockCurrencies: Currency[] = [
   // Фиатные валюты
-  { id: 'usd', name: 'Доллар США (Наличные)', symbol: 'USD', category: 'fiat', icon: '🇺🇸' },
-  { id: 'eur', name: 'Евро (Наличные)', symbol: 'EUR', category: 'fiat', icon: '🇪🇺' },
+  { id: 'usd', name: 'Доллар США (Наличные)', symbol: 'USD', category: 'fiat', icon: 'USD' },
+  { id: 'eur', name: 'Евро (Наличные)', symbol: 'EUR', category: 'fiat', icon: 'EUR' },
   { 
     id: 'rub', 
     name: 'Российский рубль', 
     symbol: 'RUB', 
     category: 'fiat', 
-    icon: '🇷🇺',
+    icon: 'RUB',
     banks: [
+      { id: 'cash', name: 'Наличные', icon: 'RUB' },
       { id: 'sberbank', name: 'Сбербанк', icon: bankIcons.sberbank },
       { id: 'tinkoff', name: 'Т-Банк (Тинькофф)', icon: bankIcons.tinkoff },
       { id: 'vtb', name: 'ВТБ', icon: bankIcons.vtb },
@@ -64,8 +65,8 @@ export const mockCurrencies: Currency[] = [
     category: 'crypto', 
     icon: cryptoIcons.btc,
     networks: [
-      { id: 'bitcoin', name: 'Bitcoin', icon: '₿' },
-      { id: 'lightning', name: 'Lightning Network', icon: '⚡' },
+      { id: 'bitcoin', name: 'Bitcoin', icon: 'BTC' },
+      { id: 'lightning', name: 'Lightning Network', icon: 'LN' },
     ]
   },
   { 
@@ -75,7 +76,7 @@ export const mockCurrencies: Currency[] = [
     category: 'crypto', 
     icon: cryptoIcons.bch,
     networks: [
-      { id: 'bch', name: 'Bitcoin Cash', icon: '₿' },
+      { id: 'bch', name: 'Bitcoin Cash', icon: 'BCH' },
     ]
   },
   { 
@@ -85,9 +86,9 @@ export const mockCurrencies: Currency[] = [
     category: 'crypto', 
     icon: cryptoIcons.eth,
     networks: [
-      { id: 'erc20', name: 'ERC20', icon: 'E' },
-      { id: 'arbitrum', name: 'Arbitrum', icon: 'A' },
-      { id: 'optimism', name: 'Optimism', icon: 'O' },
+      { id: 'erc20', name: 'ERC20', icon: 'ETH' },
+      { id: 'arbitrum', name: 'Arbitrum', icon: 'ARB' },
+      { id: 'optimism', name: 'Optimism', icon: 'OPT' },
     ]
   },
   { 

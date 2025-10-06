@@ -86,10 +86,19 @@ const CustomInput: React.FC<CustomInputProps> = (props) => {
 
           {/* Информация о валюте (только для amount варианта) */}
           {props.variant === 'amount' && props.selectedCurrency && (
-            <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm px-2 py-1 border border-emerald-500/20 rounded-lg backdrop-blur-sm justify-center">
-              <span className="currency-symbol">
+            <div className="flex items-center gap-2 font-semibold justify-center">
+              {props.selectedCurrency.icon && typeof props.selectedCurrency.icon === 'string' && (props.selectedCurrency.icon.includes('.png') || props.selectedCurrency.icon.includes('.jpg') || props.selectedCurrency.icon.includes('.svg')) ? (
+                <img 
+                  src={props.selectedCurrency.icon} 
+                  alt={props.selectedCurrency.name}
+                  className="w-6 h-6 object-contain"
+                />
+              ) : (
+                <span className="text-lg">{props.selectedCurrency.icon}</span>
+              )}
+              {/* <span className="currency-symbol">
                 {props.selectedCurrency.symbol}
-              </span>
+              </span> */}
             </div>
           )}
         </div>

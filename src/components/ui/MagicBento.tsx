@@ -5,7 +5,8 @@ import CurrencyCard from '../MainPageComponents/CurrencyCard';
 import ConversionSummary from '../MainPageComponents/ConversionSummary';
 import ExchangeRateInfo from '../ExchangeRateInfo';
 import type { Currency, BankOption, NetworkOption, PaymentCurrencyOption } from '../../types/currency';
-import { convertCurrency, convertCurrencyReal } from '../../types/exchangeRates';
+import { convertCurrency } from '../../types/exchangeRates';
+import { useStore } from '../../store/StoreProvider';
 import './MagicBento.css';
 
 export interface BentoCardProps {
@@ -515,6 +516,7 @@ const MagicBento: React.FC<BentoProps> = ({
   const gridRef = useRef<HTMLDivElement>(null);
   const isMobile = useMobileDetection();
   const shouldDisableAnimations = disableAnimations || isMobile;
+  const { exchangeRates } = useStore();
 
   // Константы
   const SERVICE_FEE_PERCENT = 3; // Комиссия сервиса 3%
@@ -632,16 +634,20 @@ const MagicBento: React.FC<BentoProps> = ({
   const handleCreateOrder = () => {
     // Здесь будет логика создания заявки
     console.log('Создание заявки:', {
-      from: fromData.currency,
-      to: toData.currency,
-      fromAmount: fromData.amount,
-      toAmount: toData.amount,
-      fromBank: fromData.bank,
-      fromNetwork: fromData.network,
-      fromPaymentCurrency: fromData.paymentCurrency,
-      toBank: toData.bank,
-      toNetwork: toData.network,
-      toPaymentCurrency: toData.paymentCurrency
+      from: {
+        currency: fromData.currency,
+        amount: fromData.amount,
+        bankName: fromData.bank?.name,
+        networkName: fromData.network?.name,
+        paymentCurrencyName: fromData.paymentCurrency?.name
+      },
+      to: {
+        currency: toData.currency,
+        amount: toData.amount,
+        bankName: toData.bank?.name,
+        networkName: toData.network?.name,
+        paymentCurrencyName: toData.paymentCurrency?.name
+      }
     });
     alert('Заявка создана! (Это заглушка)');
   };
@@ -667,8 +673,8 @@ const MagicBento: React.FC<BentoProps> = ({
         const amount = parseFloat(fromData.amount);
         if (!isNaN(amount) && amount > 0) {
           try {
-            // Пытаемся получить реальный курс
-            const convertedAmount = await convertCurrencyReal(
+            // Пытаемся получить реальный курс через стор
+            const convertedAmount = await exchangeRates.convertCurrency(
               amount,
               fromCurrencyId,
               toCurrencyId
@@ -754,7 +760,8 @@ const MagicBento: React.FC<BentoProps> = ({
     fromData.currency, 
     fromData.paymentCurrency, 
     toData.currency, 
-    toData.paymentCurrency
+    toData.paymentCurrency,
+    exchangeRates
   ]);
 
   // Сброс банка/сети/валюты платежной системы при смене валюты в первой карточке

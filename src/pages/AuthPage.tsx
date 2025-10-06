@@ -59,8 +59,8 @@ const AuthPage = observer(() => {
       }
       
       // Если успешно, редирект произойдет автоматически через useEffect
-    } catch (error: any) {
-      setError(error.response?.data?.message || 'Произошла ошибка');
+    } catch (error: unknown) {
+      setError((error as { response?: { data?: { message?: string } } }).response?.data?.message || 'Произошла ошибка');
     } finally {
       setIsLoading(false);
     }

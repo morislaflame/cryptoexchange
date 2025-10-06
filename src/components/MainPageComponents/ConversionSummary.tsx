@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { CiRepeat } from 'react-icons/ci';
 import Divider from '../ui/Divider';
 import { type Currency, type BankOption, type NetworkOption, type PaymentCurrencyOption } from '../../types/currency';
-import { getExchangeRate } from '../../types/exchangeRates';
 import { useStore } from '../../store/StoreProvider';
 import { type CreateExchangeData } from '../../http/exchangeAPI';
+import { validationService } from '../../services/validationService';
+import { type ExchangeValidationData } from '../../types/validation';
 
 interface ConversionSummaryProps {
   fromCurrency?: Currency;
@@ -40,7 +41,7 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
   fromSelectedPaymentCurrency,
   onCreateOrder
 }) => {
-  const { exchange: exchangeStore, user: userStore } = useStore();
+  const { exchange: exchangeStore, user: userStore, exchangeRates } = useStore();
   
   // Состояния для инпутов
   const [walletAddress, setWalletAddress] = useState('');
@@ -49,13 +50,45 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
   const [isCreating, setIsCreating] = useState(false);
   
   // Состояния для гостевых данных
-  const [guestEmail, setGuestEmail] = useState('');
-  const [guestTelegramUsername, setGuestTelegramUsername] = useState('');
+  const [recipientEmail, setRecipientEmail] = useState('');
+  const [recipientTelegramUsername, setRecipientTelegramUsername] = useState('');
+  
+  // Инициализируем поля данными пользователя, если они есть
+  useEffect(() => {
+    if (userStore.isAuth && userStore.user) {
+      if (userStore.user.email) {
+        setRecipientEmail(userStore.user.email);
+      }
+      if (userStore.user.username) {
+        setRecipientTelegramUsername(userStore.user.username);
+      }
+    }
+  }, [userStore.isAuth, userStore.user]);
+  
+  // Состояние для реального курса обмена
+  const [realExchangeRate, setRealExchangeRate] = useState<number | null>(null);
 
-  // Вычисляем курс обмена
-  const exchangeRate = fromCurrency && toCurrency 
-    ? getExchangeRate(fromCurrency.id, toCurrency.id)
-    : null;
+  // Загружаем реальный курс обмена при изменении валют
+  useEffect(() => {
+    const loadRealExchangeRate = async () => {
+      if (fromCurrency && toCurrency) {
+        try {
+          const rate = await exchangeRates.getExchangeRate(fromCurrency.id, toCurrency.id);
+          setRealExchangeRate(rate);
+        } catch (error) {
+          console.error('Ошибка при загрузке курса обмена:', error);
+          setRealExchangeRate(null);
+        }
+      } else {
+        setRealExchangeRate(null);
+      }
+    };
+
+    loadRealExchangeRate();
+  }, [fromCurrency, toCurrency, exchangeRates]);
+
+  // Используем реальный курс обмена, если он доступен
+  const exchangeRate = realExchangeRate;
 
   const formatAmount = (amount: string, currency?: Currency) => {
     const num = parseFloat(amount);
@@ -77,97 +110,33 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
 
   // Определяем какой инпут показывать
   const shouldShowCryptoInput = toCurrency?.category === 'crypto' && selectedNetwork;
-  const shouldShowRubInput = toCurrency?.id === 'rub' && selectedBank;
+  const shouldShowRubInput = toCurrency?.id === 'rub' && selectedBank && selectedBank.id !== 'cash';
   const shouldShowPaymentInput = toCurrency?.category === 'payment' && selectedPaymentCurrency;
 
-  // Проверка выбранных опций для первой карточки (отправка)
-  const isFromCurrencyValid = () => {
-    if (!fromCurrency) return false;
-    
-    // Если у валюты есть банки и это RUB - должен быть выбран банк
-    if (fromCurrency.id === 'rub' && fromCurrency.banks?.length) {
-      return !!fromSelectedBank;
-    }
-    
-    // Если у валюты есть сети (крипта) - должна быть выбрана сеть
-    if (fromCurrency.category === 'crypto' && fromCurrency.networks?.length) {
-      return !!fromSelectedNetwork;
-    }
-    
-    // Если у валюты есть платежные валюты (платежка) - должна быть выбрана валюта
-    if (fromCurrency.category === 'payment' && fromCurrency.paymentCurrencies?.length) {
-      return !!fromSelectedPaymentCurrency;
-    }
-    
-    return true;
+  // Подготавливаем данные для валидации
+  const validationData: ExchangeValidationData = {
+    fromCurrency,
+    toCurrency,
+    fromAmount,
+    toAmount,
+    fromSelectedBank,
+    fromSelectedNetwork,
+    fromSelectedPaymentCurrency,
+    selectedBank,
+    selectedNetwork,
+    selectedPaymentCurrency,
+    walletAddress,
+    cardNumber,
+    paymentDetails,
+    // Используем данные пользователя, если они есть, иначе поля формы
+    recipientEmail: userStore.user?.email || recipientEmail,
+    recipientTelegramUsername: userStore.user?.username || recipientTelegramUsername,
+    isAuth: userStore.isAuth
   };
 
-  // Проверка выбранных опций для второй карточки (получение)
-  const isToCurrencyValid = () => {
-    if (!toCurrency) return false;
-    
-    // Если у валюты есть банки и это RUB - должен быть выбран банк
-    if (toCurrency.id === 'rub' && toCurrency.banks?.length) {
-      return !!selectedBank;
-    }
-    
-    // Если у валюты есть сети (крипта) - должна быть выбрана сеть
-    if (toCurrency.category === 'crypto' && toCurrency.networks?.length) {
-      return !!selectedNetwork;
-    }
-    
-    // Если у валюты есть платежные валюты (платежка) - должна быть выбрана валюта
-    if (toCurrency.category === 'payment' && toCurrency.paymentCurrencies?.length) {
-      return !!selectedPaymentCurrency;
-    }
-    
-    return true;
-  };
-
-  // Проверка заполненности инпутов для получения
-  const isRecipientDataFilled = () => {
-    if (shouldShowCryptoInput) return walletAddress.trim() !== '';
-    if (shouldShowRubInput) return cardNumber.trim() !== '';
-    if (shouldShowPaymentInput) return paymentDetails.trim() !== '';
-    // Для USD и EUR дополнительные поля не нужны
-    return true;
-  };
-
-  // Проверка контактных данных для гостевых пользователей
-  const isGuestContactDataFilled = () => {
-    if (userStore.isAuth) return true; // Для авторизованных пользователей не нужно
-    
-    const email = guestEmail.trim();
-    const telegram = guestTelegramUsername.trim();
-    
-    if (!email && !telegram) return false;
-    
-    // Валидация email если указан
-    if (email) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) return false;
-    }
-    
-    // Валидация Telegram username если указан
-    if (telegram) {
-      const cleanTelegram = telegram.replace(/^@/, '');
-      const telegramRegex = /^[a-zA-Z0-9_]{1,32}$/;
-      if (!telegramRegex.test(cleanTelegram)) return false;
-    }
-    
-    return true;
-  };
-
-  // Проверяем все обязательные поля
-  const isFormValid = 
-    fromCurrency && 
-    toCurrency && 
-    fromAmount && 
-    toAmount && 
-    isFromCurrencyValid() && 
-    isToCurrencyValid() && 
-    isRecipientDataFilled() &&
-    isGuestContactDataFilled();
+  // Используем сервис валидации
+  const validationResult = validationService.validateForm(validationData);
+  const isFormValid = validationResult.isValid;
 
   // Обработчик создания заявки
   const handleCreateOrder = async () => {
@@ -179,30 +148,29 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
 
     try {
       const exchangeData: CreateExchangeData = {
-        // Валюта отправки
-        fromCurrencyId: fromCurrency.id,
-        fromCurrencySymbol: fromCurrency.symbol,
-        fromCurrencyCategory: fromCurrency.category,
-        fromAmount: fromAmount,
-        fromBankId: fromSelectedBank?.id,
-        fromBankName: fromSelectedBank?.name,
-        fromNetworkId: fromSelectedNetwork?.id,
-        fromNetworkName: fromSelectedNetwork?.name,
-        fromPaymentCurrencyId: fromSelectedPaymentCurrency?.id,
-        fromPaymentCurrencyName: fromSelectedPaymentCurrency?.name,
-
-        // Валюта получения
-        toCurrencyId: toCurrency.id,
-        toCurrencySymbol: toCurrency.symbol,
-        toCurrencyCategory: toCurrency.category,
-        toAmount: toAmount,
-        toAmountWithoutFee: toAmountWithoutFee,
-        toBankId: selectedBank?.id,
-        toBankName: selectedBank?.name,
-        toNetworkId: selectedNetwork?.id,
-        toNetworkName: selectedNetwork?.name,
-        toPaymentCurrencyId: selectedPaymentCurrency?.id,
-        toPaymentCurrencyName: selectedPaymentCurrency?.name,
+        // Направления обмена
+        from: {
+          currency: {
+            id: fromCurrency.id,
+            symbol: fromCurrency.symbol,
+            category: fromCurrency.category
+          },
+          amount: fromAmount,
+          bankName: fromSelectedBank?.name,
+          networkName: fromSelectedNetwork?.name,
+          paymentCurrencyName: fromSelectedPaymentCurrency?.name
+        },
+        to: {
+          currency: {
+            id: toCurrency.id,
+            symbol: toCurrency.symbol,
+            category: toCurrency.category
+          },
+          amount: toAmount,
+          bankName: selectedBank?.name,
+          networkName: selectedNetwork?.name,
+          paymentCurrencyName: selectedPaymentCurrency?.name
+        },
 
         // Реквизиты для получения
         recipientAddress: walletAddress || undefined,
@@ -214,9 +182,9 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
         feeAmount: feeAmount,
         feePercent: feePercent,
         
-        // Контактные данные для гостевых заявок
-        guestEmail: guestEmail.trim() || undefined,
-        guestTelegramUsername: guestTelegramUsername.trim() || undefined,
+        // Используем данные пользователя, если они есть, иначе поля формы
+        recipientEmail: (userStore.user?.email || recipientEmail.trim()) || undefined,
+        recipientTelegramUsername: (userStore.user?.username || recipientTelegramUsername.trim()) || undefined,
       };
 
       const createdExchange = await exchangeStore.createExchange(exchangeData);
@@ -229,8 +197,13 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
         setWalletAddress('');
         setCardNumber('');
         setPaymentDetails('');
-        setGuestEmail('');
-        setGuestTelegramUsername('');
+        // Очищаем только если у пользователя нет этих данных
+        if (!userStore.user?.email) {
+          setRecipientEmail('');
+        }
+        if (!userStore.user?.username) {
+          setRecipientTelegramUsername('');
+        }
         
         // Вызываем колбэк, если он есть
         if (onCreateOrder) {
@@ -252,7 +225,7 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
     <div className="w-full p-5 rounded-2xl">
       <div className="mb-6 text-center">
         <h3 className="text-2xl font-bold text-transparent bg-gradient-to-r from-emerald-400 to-emerald-600 bg-clip-text">
-          Итоги конвертации
+          Создание заявки
         </h3>
       </div>
 
@@ -260,16 +233,26 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
         {/* Блок обмена валют */}
         <div className="flex flex-col gap-4">
           {/* Отдаете */}
-          <div className="p-5 bg-white/5 border border-white/10 rounded-xl">
-            <div className="flex items-center justify-between gap-4">
-              <div className="text-white text-xl font-bold flex-grow">
+          <div className="p-3 bg-emerald-500/5 border border-emerald-500/20 rounded-xl">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-sm text-white/70">Ваша сумма:</p>
+              <div className="text-white text-lg font-bold flex-grow">
                 {formatAmount(fromAmount, fromCurrency)}
               </div>
               {fromCurrency && (
-              <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm px-2 py-1 border border-emerald-500/20 rounded-lg backdrop-blur-sm justify-center">
-                    <span className="font-bold">
+              <div className="flex items-center gap-2 font-semibold text-lg justify-center">
+                {fromCurrency.icon && typeof fromCurrency.icon === 'string' && (fromCurrency.icon.includes('.png') || fromCurrency.icon.includes('.jpg') || fromCurrency.icon.includes('.svg')) ? (
+                  <img 
+                    src={fromCurrency.icon} 
+                    alt={fromCurrency.name}
+                    className="w-6 h-6 object-contain"
+                  />
+                ) : (
+                  <span className="text-lg">{fromCurrency.icon}</span>
+                )}
+                    {/* <span className="currency-symbol" >
                       {fromCurrency.symbol}
-                    </span>
+                    </span> */}
               </div>
               )}
             </div>
@@ -443,48 +426,56 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
           </div>
         )}
 
-        {/* Поля контактных данных для гостевых пользователей */}
-        {!userStore.isAuth && (
+        {/* Поля контактных данных для гостевых пользователей или если у авторизованного пользователя нет данных */}
+        {(!userStore.isAuth || !userStore.user?.email || !userStore.user?.username) && (
           <div className="space-y-4">
             <div className="p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-xl">
               <h4 className="text-sm font-semibold text-emerald-400 mb-3">Контактные данные</h4>
               <div className="space-y-3">
+                {/* Показываем поле email только если у пользователя нет email */}
+                {(!userStore.isAuth || !userStore.user?.email) && (
                   <div>
                     <label className="text-sm text-white/70 font-medium">Email</label>
                     <input
                       type="email"
-                      value={guestEmail}
-                      onChange={(e) => setGuestEmail(e.target.value)}
+                      value={recipientEmail}
+                      onChange={(e) => setRecipientEmail(e.target.value)}
                       placeholder="your@email.com"
                       className={`w-full mt-1 px-3 py-2 bg-white/5 border rounded-lg text-white placeholder-white/30 focus:outline-none focus:bg-white/10 transition-all duration-300 ${
-                        guestEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail)
+                        recipientEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail)
                           ? 'border-red-500/50 focus:border-red-500/50'
                           : 'border-white/10 focus:border-emerald-500/50'
                       }`}
                     />
-                    {guestEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail) && (
+                    {recipientEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail) && (
                       <p className="text-xs text-red-400/80 mt-1">Некорректный формат email</p>
                     )}
                   </div>
+                )}
+                
+                {/* Показываем поле Telegram только если у пользователя нет username */}
+                {(!userStore.isAuth || !userStore.user?.username) && (
                   <div>
                     <label className="text-sm text-white/70 font-medium">Telegram username</label>
                     <input
                       type="text"
-                      value={guestTelegramUsername}
-                      onChange={(e) => setGuestTelegramUsername(e.target.value)}
+                      value={recipientTelegramUsername}
+                      onChange={(e) => setRecipientTelegramUsername(e.target.value)}
                       placeholder="@username"
                       className={`w-full mt-1 px-3 py-2 bg-white/5 border rounded-lg text-white placeholder-white/30 focus:outline-none focus:bg-white/10 transition-all duration-300 ${
-                        guestTelegramUsername && !/^[a-zA-Z0-9_]{1,32}$/.test(guestTelegramUsername.replace(/^@/, ''))
+                        recipientTelegramUsername && !/^[a-zA-Z0-9_]{1,32}$/.test(recipientTelegramUsername.replace(/^@/, ''))
                           ? 'border-red-500/50 focus:border-red-500/50'
                           : 'border-white/10 focus:border-emerald-500/50'
                       }`}
                     />
-                    {guestTelegramUsername && !/^[a-zA-Z0-9_]{1,32}$/.test(guestTelegramUsername.replace(/^@/, '')) && (
+                    {recipientTelegramUsername && !/^[a-zA-Z0-9_]{1,32}$/.test(recipientTelegramUsername.replace(/^@/, '')) && (
                       <p className="text-xs text-red-400/80 mt-1">Некорректный формат Telegram username</p>
                     )}
                   </div>
+                )}
+                
                 <p className="text-xs text-white/50">
-                  Укажите хотя бы один способ связи для получения информации о заявке
+                  Укажите контакты для получения информации о заявке
                 </p>
               </div>
             </div>
@@ -510,9 +501,11 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
               'Создать заявку'
             )}
           </button>
-          {!isGuestContactDataFilled() && !userStore.isAuth && (
+          {!validationResult.isValid && !userStore.isAuth && (
             <p className="text-xs text-red-400/80 text-center mt-2">
-              Укажите email или Telegram username для создания заявки
+              {validationResult.errors.find(error => 
+                error.includes('email') || error.includes('Telegram')
+              ) || 'Заполните все обязательные поля'}
             </p>
           )}
         </div>
