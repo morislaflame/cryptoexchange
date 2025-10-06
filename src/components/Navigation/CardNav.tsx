@@ -1,6 +1,9 @@
 import React, { useLayoutEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
 import './CardNav.css';
+import { LOGIN_ROUTE } from '@/utils/consts';
+import { useNavigate } from 'react-router-dom';
+import { useStore } from '@/store/StoreProvider';
 
 type CardNavLink = {
   label: string;
@@ -43,6 +46,16 @@ const CardNav: React.FC<CardNavProps> = ({
   const navRef = useRef<HTMLDivElement | null>(null);
   const cardsRef = useRef<HTMLAnchorElement[]>([]);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
+  const navigate = useNavigate();
+  const { user } = useStore();
+
+  const handleAuthClick = () => {
+    if (user.isAuth) {
+      user.logout();
+    } else {
+      navigate(LOGIN_ROUTE);
+    }
+  };
 
   const calculateHeight = useCallback(() => {
     const navEl = navRef.current;
@@ -162,6 +175,7 @@ const CardNav: React.FC<CardNavProps> = ({
           <div className="logo-container">
             <img src={logo} alt={logoAlt} className="logo" />
           </div>
+          
 
           {/* Ссылки с заголовками разделов - показываются только в свернутом состоянии */}
           {!isExpanded && (
@@ -178,7 +192,13 @@ const CardNav: React.FC<CardNavProps> = ({
               ))}
             </div>
           )}
-
+          <div className="flex items-center gap-4">
+            <button
+              onClick={handleAuthClick}
+              className="px-4 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 hover:border-emerald-500/50 rounded-lg text-emerald-400 hover:text-emerald-300 transition-all duration-300 backdrop-blur-sm"
+            >
+              {user.isAuth ? 'Выйти' : 'Войти'}
+            </button>
           <div
             className={`hamburger-menu ${isHamburgerOpen ? 'open' : ''}`}
             onClick={toggleMenu}
@@ -189,6 +209,7 @@ const CardNav: React.FC<CardNavProps> = ({
           >
             <div className="hamburger-line" />
             <div className="hamburger-line" />
+          </div>
           </div>
         </div>
 
@@ -208,6 +229,7 @@ const CardNav: React.FC<CardNavProps> = ({
             </a>
           ))}
         </div>
+        
       </nav>
     </div>
   );

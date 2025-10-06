@@ -36,7 +36,7 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
             ? 'border-1 border-emerald-500 bg-emerald-500/10' 
             : isHovered
               ? 'border border-white/10 bg-white/10'
-              : 'border border-white/10 bg-white/5'
+              : 'border border-white/10 bg-black/30'
           }
         `}
         onClick={onClick}

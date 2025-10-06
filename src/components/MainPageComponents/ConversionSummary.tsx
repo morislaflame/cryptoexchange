@@ -47,6 +47,10 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
   const [cardNumber, setCardNumber] = useState('');
   const [paymentDetails, setPaymentDetails] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  
+  // Состояния для гостевых данных
+  const [guestEmail, setGuestEmail] = useState('');
+  const [guestTelegramUsername, setGuestTelegramUsername] = useState('');
 
   // Вычисляем курс обмена
   const exchangeRate = fromCurrency && toCurrency 
@@ -129,6 +133,31 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
     return true;
   };
 
+  // Проверка контактных данных для гостевых пользователей
+  const isGuestContactDataFilled = () => {
+    if (userStore.isAuth) return true; // Для авторизованных пользователей не нужно
+    
+    const email = guestEmail.trim();
+    const telegram = guestTelegramUsername.trim();
+    
+    if (!email && !telegram) return false;
+    
+    // Валидация email если указан
+    if (email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) return false;
+    }
+    
+    // Валидация Telegram username если указан
+    if (telegram) {
+      const cleanTelegram = telegram.replace(/^@/, '');
+      const telegramRegex = /^[a-zA-Z0-9_]{1,32}$/;
+      if (!telegramRegex.test(cleanTelegram)) return false;
+    }
+    
+    return true;
+  };
+
   // Проверяем все обязательные поля
   const isFormValid = 
     fromCurrency && 
@@ -137,11 +166,12 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
     toAmount && 
     isFromCurrencyValid() && 
     isToCurrencyValid() && 
-    isRecipientDataFilled();
+    isRecipientDataFilled() &&
+    isGuestContactDataFilled();
 
   // Обработчик создания заявки
   const handleCreateOrder = async () => {
-    if (!isFormValid || !fromCurrency || !toCurrency || !userStore.isAuth) {
+    if (!isFormValid || !fromCurrency || !toCurrency) {
       return;
     }
 
@@ -183,6 +213,10 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
         exchangeRate: exchangeRate?.toString(),
         feeAmount: feeAmount,
         feePercent: feePercent,
+        
+        // Контактные данные для гостевых заявок
+        guestEmail: guestEmail.trim() || undefined,
+        guestTelegramUsername: guestTelegramUsername.trim() || undefined,
       };
 
       const createdExchange = await exchangeStore.createExchange(exchangeData);
@@ -195,6 +229,8 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
         setWalletAddress('');
         setCardNumber('');
         setPaymentDetails('');
+        setGuestEmail('');
+        setGuestTelegramUsername('');
         
         // Вызываем колбэк, если он есть
         if (onCreateOrder) {
@@ -407,12 +443,60 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
           </div>
         )}
 
+        {/* Поля контактных данных для гостевых пользователей */}
+        {!userStore.isAuth && (
+          <div className="space-y-4">
+            <div className="p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-xl">
+              <h4 className="text-sm font-semibold text-emerald-400 mb-3">Контактные данные</h4>
+              <div className="space-y-3">
+                  <div>
+                    <label className="text-sm text-white/70 font-medium">Email</label>
+                    <input
+                      type="email"
+                      value={guestEmail}
+                      onChange={(e) => setGuestEmail(e.target.value)}
+                      placeholder="your@email.com"
+                      className={`w-full mt-1 px-3 py-2 bg-white/5 border rounded-lg text-white placeholder-white/30 focus:outline-none focus:bg-white/10 transition-all duration-300 ${
+                        guestEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail)
+                          ? 'border-red-500/50 focus:border-red-500/50'
+                          : 'border-white/10 focus:border-emerald-500/50'
+                      }`}
+                    />
+                    {guestEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail) && (
+                      <p className="text-xs text-red-400/80 mt-1">Некорректный формат email</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="text-sm text-white/70 font-medium">Telegram username</label>
+                    <input
+                      type="text"
+                      value={guestTelegramUsername}
+                      onChange={(e) => setGuestTelegramUsername(e.target.value)}
+                      placeholder="@username"
+                      className={`w-full mt-1 px-3 py-2 bg-white/5 border rounded-lg text-white placeholder-white/30 focus:outline-none focus:bg-white/10 transition-all duration-300 ${
+                        guestTelegramUsername && !/^[a-zA-Z0-9_]{1,32}$/.test(guestTelegramUsername.replace(/^@/, ''))
+                          ? 'border-red-500/50 focus:border-red-500/50'
+                          : 'border-white/10 focus:border-emerald-500/50'
+                      }`}
+                    />
+                    {guestTelegramUsername && !/^[a-zA-Z0-9_]{1,32}$/.test(guestTelegramUsername.replace(/^@/, '')) && (
+                      <p className="text-xs text-red-400/80 mt-1">Некорректный формат Telegram username</p>
+                    )}
+                  </div>
+                <p className="text-xs text-white/50">
+                  Укажите хотя бы один способ связи для получения информации о заявке
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Кнопка создания заявки */}
         <div className="mt-2">
           <button
             className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 disabled:from-white/10 disabled:to-white/10 border-none rounded-xl text-white text-base font-semibold cursor-pointer transition-all duration-300 shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:translate-y-0 active:shadow-lg active:shadow-emerald-500/30 uppercase tracking-wider disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none disabled:text-white/40"
             onClick={handleCreateOrder}
-            disabled={!isFormValid || isCreating || !userStore.isAuth}
+            disabled={!isFormValid || isCreating}
           >
             {isCreating ? (
               <>
@@ -426,9 +510,9 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
               'Создать заявку'
             )}
           </button>
-          {!userStore.isAuth && (
+          {!isGuestContactDataFilled() && !userStore.isAuth && (
             <p className="text-xs text-red-400/80 text-center mt-2">
-              Необходимо авторизоваться для создания заявки
+              Укажите email или Telegram username для создания заявки
             </p>
           )}
         </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import MagicBento from "@/components/ui/MagicBento";
 import ChatModal from "@/components/ChatComponents/ChatModal";
+import ServiceInfoBlock from "@/components/MainPageComponents/ServiceInfoBlock";
 import { Button } from "@/components/ui/button";
 import { Context, type IStoreContext } from '@/store/StoreProvider';
 // import MainGrid from "@/components/MainPageComponents/MainGrid";
@@ -15,22 +16,27 @@ const MainPage = () => {
 
     return (
         <>
-            <div className="w-full h-full flex flex-col items-center justify-center gap-4 lg:px-8 px-4">
-                <div className='w-full'>
-                    <MagicBento
-                        clickEffect={true}
-                        enableMagnetism={false}
-                        enableSpotlight={false}
-                        enableBorderGlow={true}
-                        enableStars={false}
-                        disableAnimations={false}
-                        spotlightRadius={300}
-                        // particleCount={12}
-                        glowColor="#10b981}"
+            <div className="w-full min-h-screen flex flex-col">
+                <div className="flex-1 flex items-center justify-center gap-4 lg:px-8 px-4">
+                    <div className='w-full'>
+                        <MagicBento
+                            clickEffect={true}
+                            enableMagnetism={false}
+                            enableSpotlight={false}
+                            enableBorderGlow={true}
+                            enableStars={false}
+                            disableAnimations={false}
+                            spotlightRadius={300}
+                            // particleCount={12}
+                            glowColor="#10b981}"
 
-                    />
+                        />
+                    </div>
+                    {/* <MainGrid /> */}
                 </div>
-                {/* <MainGrid /> */}
+                
+                {/* Блок информации о сервисе */}
+                <ServiceInfoBlock />
             </div>
 
             {/* Кнопка чата */}

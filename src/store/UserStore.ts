@@ -1,5 +1,5 @@
 import {makeAutoObservable, runInAction } from "mobx";
-import { fetchMyInfo, telegramAuth, check } from "@/http/userAPI";
+import { fetchMyInfo, telegramAuth, check, login, registration } from "@/http/userAPI";
 import { type UserInfo } from "@/types/types";
 
 export default class UserStore {
@@ -90,6 +90,38 @@ export default class UserStore {
             
         } catch (error) {
             console.error("Error during fetching my info:", error);
+        }
+    }
+
+    async login(email: string, password: string) {
+        try {
+            await login(email, password);
+            // После успешного логина загружаем полную информацию о пользователе
+            await this.fetchMyInfo();
+            runInAction(() => {
+                this.setIsAuth(true);
+                this.setServerError(false);
+            });
+        } catch (error: any) {
+            console.error("Error during login:", error);
+            this.setServerError(true, error.response?.data?.message || 'Ошибка входа');
+            throw error;
+        }
+    }
+
+    async registration(email: string, password: string) {
+        try {
+            await registration(email, password);
+            // После успешной регистрации загружаем полную информацию о пользователе
+            await this.fetchMyInfo();
+            runInAction(() => {
+                this.setIsAuth(true);
+                this.setServerError(false);
+            });
+        } catch (error: any) {
+            console.error("Error during registration:", error);
+            this.setServerError(true, error.response?.data?.message || 'Ошибка регистрации');
+            throw error;
         }
     }
 

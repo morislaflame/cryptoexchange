@@ -1,4 +1,4 @@
-import { $authHost } from "./index";
+import { $authHost, $host } from "./index";
 
 export interface CreateExchangeData {
   // Валюта отправки
@@ -38,6 +38,10 @@ export interface CreateExchangeData {
   
   // Примечания клиента
   clientNotes?: string;
+  
+  // Контактные данные для гостевых заявок
+  guestEmail?: string;
+  guestTelegramUsername?: string;
 }
 
 export interface Exchange {
@@ -93,9 +97,9 @@ export interface ExchangeListResponse {
   rows: Exchange[];
 }
 
-// Создание новой заявки
+// Создание новой заявки (поддерживает гостевые заявки)
 export const createExchange = async (exchangeData: CreateExchangeData): Promise<Exchange> => {
-  const { data } = await $authHost.post('api/exchange/', exchangeData);
+  const { data } = await $host.post('api/exchange/', exchangeData);
   return data;
 };
 

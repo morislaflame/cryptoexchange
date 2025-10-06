@@ -802,7 +802,7 @@ const MagicBento: React.FC<BentoProps> = ({
                 backgroundColor: cardData[0]?.color,
                 '--glow-color': glowColor
               } as React.CSSProperties}
-              disableAnimations={shouldDisableAnimations}
+              disableAnimations={true}
               particleCount={particleCount}
               glowColor={glowColor}
               enableTilt={enableTilt}
@@ -849,7 +849,7 @@ const MagicBento: React.FC<BentoProps> = ({
                 backgroundColor: cardData[1]?.color,
                 '--glow-color': glowColor
               } as React.CSSProperties}
-              disableAnimations={shouldDisableAnimations}
+              disableAnimations={true}
               particleCount={particleCount}
               glowColor={glowColor}
               enableTilt={enableTilt}
@@ -888,7 +888,7 @@ const MagicBento: React.FC<BentoProps> = ({
               backgroundColor: cardData[2]?.color,
               '--glow-color': glowColor
             } as React.CSSProperties}
-            disableAnimations={shouldDisableAnimations}
+            disableAnimations={true}
             particleCount={particleCount}
             glowColor={glowColor}
             enableTilt={enableTilt}
