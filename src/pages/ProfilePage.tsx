@@ -5,8 +5,9 @@ import { type Exchange } from '@/http/exchangeAPI';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { type Currency } from '@/types/currency';
 import { formatAmount } from '@/utils/formatNumbers';
+import { getProfileCurrencySymbol, getProfileCurrency } from '@/utils/currencyFormatting';
+import { type Currency } from '@/types/currency';
 // import { format } from 'date-fns';
 // import { ru } from 'date-fns/locale';
 
@@ -209,7 +210,7 @@ const ProfilePage = observer(() => {
                   <div className="bg-white/5 rounded-lg p-4">
                     <h4 className="text-sm font-medium text-gray-300 mb-2">Отправляете</h4>
                     <div className="text-white font-semibold text-lg">
-                      {formatAmount(exchangeItem.from.amount, exchangeItem.from.currency as Currency)} {exchangeItem.from.currency.symbol}
+                      {formatAmount(exchangeItem.from.amount, getProfileCurrency(exchangeItem.from.currency as Currency, exchangeItem.from.paymentCurrencyName))} {getProfileCurrencySymbol(exchangeItem.from.currency as Currency, exchangeItem.from.paymentCurrencyName)}
                     </div>
                     {exchangeItem.from.bankName && (
                       <p className="text-gray-300 text-sm mt-1">
@@ -227,7 +228,7 @@ const ProfilePage = observer(() => {
                   <div className="bg-white/5 rounded-lg p-4">
                     <h4 className="text-sm font-medium text-gray-300 mb-2">Получаете</h4>
                     <div className="text-white font-semibold text-lg">
-                      {formatAmount(exchangeItem.to.amount, exchangeItem.to.currency as Currency)} {exchangeItem.to.currency.symbol}
+                      {formatAmount(exchangeItem.to.amount, getProfileCurrency(exchangeItem.to.currency as Currency, exchangeItem.to.paymentCurrencyName))} {getProfileCurrencySymbol(exchangeItem.to.currency as Currency, exchangeItem.to.paymentCurrencyName)}
                     </div>
                     {exchangeItem.to.bankName && (
                       <p className="text-gray-300 text-sm mt-1">
@@ -269,7 +270,7 @@ const ProfilePage = observer(() => {
                 {/* Комиссия и курс */}
                 <div className="flex justify-between items-center text-sm">
                   <div className="text-gray-300">
-                    Комиссия: {formatAmount(exchangeItem.feeAmount || '0', exchangeItem.to.currency as Currency)} {exchangeItem.to.currency.symbol} ({exchangeItem.feePercent}%)
+                    Комиссия: {formatAmount(exchangeItem.feeAmount || '0', getProfileCurrency(exchangeItem.to.currency as Currency, exchangeItem.to.paymentCurrencyName))} {getProfileCurrencySymbol(exchangeItem.to.currency as Currency, exchangeItem.to.paymentCurrencyName)} ({exchangeItem.feePercent}%)
                   </div>
                   {exchangeItem.exchangeRate && (
                     <div className="text-gray-300">

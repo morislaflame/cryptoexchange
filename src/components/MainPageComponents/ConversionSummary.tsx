@@ -9,6 +9,7 @@ import { type CreateExchangeData } from '../../http/exchangeAPI';
 import { validationService } from '../../services/validationService';
 import { type ExchangeValidationData } from '../../types/validation';
 import { formatAmount, formatExchangeRate } from '../../utils/formatNumbers';
+import { getDisplayCurrencySymbol, getDisplayCurrency } from '../../utils/currencyFormatting';
 
 interface ConversionSummaryProps {
   fromCurrency?: Currency;
@@ -98,6 +99,7 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
 
   // Используем реальный курс обмена, если он доступен
   const exchangeRate = realExchangeRate;
+
 
 
   // Определяем какой инпут показывать
@@ -276,10 +278,8 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
               <div className="flex items-center justify-between text-sm">
                 <span className="text-white/70">Сумма без комиссии:</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-white font-semibold">{formatAmount(toAmountWithoutFee, toCurrency)}</span>
-                  {toCurrency && (
-                    <span className=" font-semibold">{toCurrency.symbol}</span>
-                  )}
+                  <span className="text-white font-semibold">{formatAmount(toAmountWithoutFee, getDisplayCurrency(toCurrency, selectedPaymentCurrency))}</span>
+                  <span className=" font-semibold">{getDisplayCurrencySymbol(toCurrency, selectedPaymentCurrency)}</span>
                 </div>
               </div>
 
@@ -287,10 +287,8 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
               <div className="flex items-center justify-between text-sm">
                 <span className="text-white/70">Комиссия сервиса ({feePercent}%):</span>
                 <div className="flex items-center gap-2">
-                  <span className=" font-semibold">-{formatAmount(feeAmount, toCurrency)}</span>
-                  {toCurrency && (
-                    <span className=" font-semibold">{toCurrency.symbol}</span>
-                  )}
+                  <span className=" font-semibold">-{formatAmount(feeAmount, getDisplayCurrency(toCurrency, selectedPaymentCurrency))}</span>
+                  <span className=" font-semibold">{getDisplayCurrencySymbol(toCurrency, selectedPaymentCurrency)}</span>
                 </div>
               </div>
 
@@ -301,10 +299,8 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
               <div className="flex items-center justify-between">
                 <span className="text-white font-semibold">Итого к получению:</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-emerald-400 font-bold text-lg">{formatAmount(toAmount, toCurrency)}</span>
-                  {toCurrency && (
-                    <span className="text-emerald-400 font-bold">{toCurrency.symbol}</span>
-                  )}
+                  <span className="text-emerald-400 font-bold text-lg">{formatAmount(toAmount, getDisplayCurrency(toCurrency, selectedPaymentCurrency))}</span>
+                  <span className="text-emerald-400 font-bold">{getDisplayCurrencySymbol(toCurrency, selectedPaymentCurrency)}</span>
                 </div>
               </div>
             </div>
@@ -316,15 +312,13 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
               <div className="flex items-center justify-between gap-2">
                 <p className="text-sm text-white/70">К получению:</p>
                 <div className="text-white text-lg font-bold flex-grow">
-                  {formatAmount(toAmount, toCurrency)}
+                  {formatAmount(toAmount, getDisplayCurrency(toCurrency, selectedPaymentCurrency))}
                 </div>
-                {toCurrency && (
-                  <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm px-2 py-1 border border-emerald-500/20 rounded-lg backdrop-blur-sm justify-center">
-                    <span className="font-bold ">
-                      {toCurrency.symbol}
-                    </span>
-                  </div>
-                )}
+                <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm px-2 py-1 border border-emerald-500/20 rounded-lg backdrop-blur-sm justify-center">
+                  <span className="font-bold ">
+                    {getDisplayCurrencySymbol(toCurrency, selectedPaymentCurrency)}
+                  </span>
+                </div>
               </div>
             </div>
           )}
