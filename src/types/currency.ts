@@ -1,4 +1,4 @@
-import { bankIcons, paymentIcons, cryptoIcons } from '../assets/bankIcons';
+import { bankIcons, paymentIcons, cryptoIcons } from '../utils/bankIcons';
 
 export interface BankOption {
   id: string;
