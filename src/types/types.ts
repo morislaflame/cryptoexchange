@@ -9,13 +9,13 @@ export interface UserInfo {
 export interface ChatMessage {
     id: number;
     text: string;
-    senderType: 'USER' | 'ADMIN';
+    senderType: 'USER' | 'ADMIN' | 'GUEST' | 'SYSTEM';
     isRead: boolean;
     readAt: string | null;
     createdAt: string;
     updatedAt: string;
     chatId: number;
-    userId: number;
+    userId: number | null; // Может быть null для гостевых сообщений
     user?: {
         id: number;
         email?: string;

@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import MagicBento from "@/components/ui/MagicBento";
 import ChatModal from "@/components/ChatComponents/ChatModal";
+import GuestChatModal from "@/components/ChatComponents/GuestChatModal";
 import ServiceInfoBlock from "@/components/MainPageComponents/ServiceInfoBlock";
 import { Button } from "@/components/ui/button";
 import { Context, type IStoreContext } from '@/store/StoreProvider';
@@ -40,24 +41,37 @@ const MainPage = () => {
             </div>
 
             {/* Кнопка чата */}
-            <Button
-                onClick={() => setIsChatOpen(true)}
-                className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-emerald-600 hover:bg-emerald-700 shadow-lg hover:shadow-xl transition-all duration-200 z-50"
-                size="icon"
-            >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path
-                        d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
-                        fill="currentColor"
-                    />
-                </svg>
-            </Button>
+            <div className="fixed bottom-6 right-6 z-50">
+                <Button
+                    onClick={() => setIsChatOpen(true)}
+                    className="h-14 w-14 rounded-full bg-emerald-600 hover:bg-emerald-700 shadow-lg hover:shadow-xl transition-all duration-200"
+                    size="icon"
+                    title={user.isAuth ? "Чат поддержки" : "Гостевой чат поддержки"}
+                >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path
+                            d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                            fill="currentColor"
+                        />
+                    </svg>
+                </Button>
+            </div>
 
-            {/* Модалка чата */}
-            <ChatModal
-                isOpen={isChatOpen}
-                onClose={() => setIsChatOpen(false)}
-            />
+            {/* Модалка чата - для авторизованных пользователей */}
+            {user.isAuth && (
+                <ChatModal
+                    isOpen={isChatOpen}
+                    onClose={() => setIsChatOpen(false)}
+                />
+            )}
+
+            {/* Модалка гостевого чата - для неавторизованных пользователей */}
+            {!user.isAuth && (
+                <GuestChatModal
+                    isOpen={isChatOpen}
+                    onClose={() => setIsChatOpen(false)}
+                />
+            )}
         </>
     )
 }

@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { type ChatMessage, type Chat } from "@/types/types";
-import { createSupportChat, getChats, getChatById, markMessagesAsRead, getUnreadCount, getActiveChatsAdmin, getChatMessagesAdmin, getChatStatsAdmin } from "@/http/chatAPI";
+import { createSupportChat, getChats, getChatById, markMessagesAsRead, getUnreadCount, getActiveChatsAdmin, getChatMessagesAdmin, getChatStatsAdmin, createGuestSupportChat, getGuestChatById } from "@/http/chatAPI";
 
 export default class ChatStore {
     _chats: Chat[] = [];
@@ -9,6 +9,7 @@ export default class ChatStore {
     _unreadCount = 0;
     _loading = false;
     _error = '';
+    _isGuest = false;
 
     constructor() {
         makeAutoObservable(this);
@@ -52,6 +53,10 @@ export default class ChatStore {
         this._error = error;
     }
 
+    setIsGuest(isGuest: boolean) {
+        this._isGuest = isGuest;
+    }
+
     // Создание или получение чата поддержки
     async createSupportChat() {
         try {
@@ -68,6 +73,55 @@ export default class ChatStore {
         } catch (error) {
             console.error('Error creating support chat:', error);
             this.setError('Ошибка создания чата поддержки');
+            throw error;
+        } finally {
+            this.setLoading(false);
+        }
+    }
+
+    // Создание или получение гостевого чата поддержки
+    async createGuestSupportChat() {
+        try {
+            this.setLoading(true);
+            this.setError('');
+            this.setIsGuest(true);
+
+            // Проверяем, есть ли сохраненный ID гостевого чата
+            const savedGuestChatId = localStorage.getItem('guestChatId');
+            
+            if (savedGuestChatId) {
+                try {
+                    // Пытаемся получить существующий чат
+                    const chat = await getGuestChatById(parseInt(savedGuestChatId));
+                    runInAction(() => {
+                        this.setCurrentChat(chat);
+                        this.setMessages(chat.messages || []);
+                    });
+                    console.log('Restored guest chat from localStorage:', savedGuestChatId);
+                    return chat;
+                } catch (error) {
+                    console.warn('Failed to restore guest chat, creating new one:', error);
+                    // Если не удалось восстановить чат, удаляем сохраненный ID
+                    localStorage.removeItem('guestChatId');
+                }
+            }
+
+            // Создаем новый гостевой чат
+            const chat = await createGuestSupportChat();
+            
+            // Сохраняем ID чата в localStorage
+            localStorage.setItem('guestChatId', chat.id.toString());
+            
+            runInAction(() => {
+                this.setCurrentChat(chat as Chat);
+                this.setMessages(chat.messages || []);
+            });
+
+            console.log('Created new guest chat and saved to localStorage:', chat.id);
+            return chat;
+        } catch (error) {
+            console.error('Error creating guest support chat:', error);
+            this.setError('Ошибка создания гостевого чата поддержки');
             throw error;
         } finally {
             this.setLoading(false);
@@ -111,6 +165,26 @@ export default class ChatStore {
         }
     }
 
+    // Получение гостевого чата
+    async fetchGuestChat(chatId: number) {
+        try {
+            this.setLoading(true);
+            this.setError('');
+            this.setIsGuest(true);
+
+            const chat = await getGuestChatById(chatId);
+            runInAction(() => {
+                this.setCurrentChat(chat);
+                this.setMessages(chat.messages || []);
+            });
+        } catch (error) {
+            console.error('Error fetching guest chat:', error);
+            this.setError('Ошибка загрузки гостевого чата');
+        } finally {
+            this.setLoading(false);
+        }
+    }
+
     // Отметить сообщения как прочитанные через API
     async markMessagesRead(chatId: number) {
         try {
@@ -137,7 +211,19 @@ export default class ChatStore {
         runInAction(() => {
             this.setCurrentChat(null);
             this.setMessages([]);
+            this.setIsGuest(false);
         });
+    }
+
+    // Очистка гостевого чата (удаляет из localStorage)
+    clearGuestChat() {
+        runInAction(() => {
+            this.setCurrentChat(null);
+            this.setMessages([]);
+            this.setIsGuest(false);
+        });
+        localStorage.removeItem('guestChatId');
+        console.log('Cleared guest chat from localStorage');
     }
 
     // Админские методы
@@ -208,5 +294,9 @@ export default class ChatStore {
 
     get error() {
         return this._error;
+    }
+
+    get isGuest() {
+        return this._isGuest;
     }
 }

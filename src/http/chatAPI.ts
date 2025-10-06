@@ -73,3 +73,14 @@ export const getChatStatsAdmin = async (): Promise<{
     const { data } = await $authHost.get('api/chat/admin/stats');
     return data;
 };
+
+// Гостевые методы для неавторизованных пользователей
+export const createGuestSupportChat = async (): Promise<CreateChatResponse> => {
+    const { data } = await $authHost.post('api/chat/guest/support');
+    return data;
+};
+
+export const getGuestChatById = async (chatId: number): Promise<Chat> => {
+    const { data } = await $authHost.get(`api/chat/guest/${chatId}`);
+    return data;
+};

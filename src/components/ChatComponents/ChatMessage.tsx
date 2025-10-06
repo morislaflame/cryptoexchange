@@ -11,7 +11,20 @@ const ChatMessage: React.FC<ChatMessageProps> = observer(({ message }) => {
     const { user: userStore } = useStore();
     
     // Определяем, является ли сообщение от текущего пользователя
-    const isUser = message.userId === userStore.user?.id;
+    const isUser = (() => {
+        // Если пользователь авторизован - проверяем по userId
+        if (userStore.isAuth && userStore.user?.id) {
+            return message.userId === userStore.user.id;
+        }
+        
+        // Если пользователь не авторизован (гость) - считаем гостевые сообщения своими
+        if (!userStore.isAuth) {
+            return message.senderType === 'GUEST';
+        }
+        
+        // Fallback - по умолчанию не считаем сообщение своим
+        return false;
+    })();
 
     const formatTime = (timestamp: Date | string | undefined) => {
         if (!timestamp) return '';
