@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import { useStore } from '@/store/StoreProvider';
 import CardNav from './CardNav';
 import logo from '@/assets/logo.png';
-import { ADMIN_CHATS_ROUTE, RULES_ROUTE, AML_ROUTE, FAQ_ROUTE } from '@/utils/consts';
+import { ADMIN_CHATS_ROUTE, ADMIN_EXCHANGES_ROUTE, RULES_ROUTE, AML_ROUTE, FAQ_ROUTE } from '@/utils/consts';
 
 const Navigation = observer(() => {
   const { user } = useStore();
@@ -40,19 +40,31 @@ const Navigation = observer(() => {
     }
   ];
 
-  // Добавляем пункт для админа, если пользователь - админ
-  const adminItem = user.isAuth && user.user?.role === 'ADMIN' ? {
-    label: "Admin",
-    bgColor: "#2d1a3d",
-    textColor: "#fff",
-    description: "Панель управления чатами",
-    href: ADMIN_CHATS_ROUTE,
-    links: [
-      { label: "Chats", href: ADMIN_CHATS_ROUTE, ariaLabel: "Admin Chats" }
-    ]
-  } : null;
+  // Добавляем пункты для админа, если пользователь - админ
+  const adminItems = user.isAuth && user.user?.role === 'ADMIN' ? [
+    {
+      label: "Управление чатами",
+      bgColor: "#2d1a3d",
+      textColor: "#fff",
+      description: "Панель управления чатами поддержки",
+      href: ADMIN_CHATS_ROUTE,
+      links: [
+        { label: "Чаты", href: ADMIN_CHATS_ROUTE, ariaLabel: "Admin Chats" }
+      ]
+    },
+    {
+      label: "Управление заявками",
+      bgColor: "#1a2d3d",
+      textColor: "#fff",
+      description: "Панель управления заявками на обмен",
+      href: ADMIN_EXCHANGES_ROUTE,
+      links: [
+        { label: "Заявки", href: ADMIN_EXCHANGES_ROUTE, ariaLabel: "Admin Exchanges" }
+      ]
+    }
+  ] : [];
 
-  const items = adminItem ? [...baseItems, adminItem] : baseItems;
+  const items = [...baseItems, ...adminItems];
 
   return (
     <CardNav
