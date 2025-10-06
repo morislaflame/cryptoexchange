@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { CiRepeat } from 'react-icons/ci';
 import Divider from '../ui/Divider';
+import SuccessModal from '../ui/SuccessModal';
 import { type Currency, type BankOption, type NetworkOption, type PaymentCurrencyOption } from '../../types/currency';
 import { useStore } from '../../store/StoreProvider';
 import { type CreateExchangeData } from '../../http/exchangeAPI';
@@ -52,6 +53,10 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
   // Состояния для гостевых данных
   const [recipientEmail, setRecipientEmail] = useState('');
   const [recipientTelegramUsername, setRecipientTelegramUsername] = useState('');
+  
+  // Состояние для модального окна успеха
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [createdExchange, setCreatedExchange] = useState<{ id: number; status: string } | null>(null);
   
   // Инициализируем поля данными пользователя, если они есть
   useEffect(() => {
@@ -190,8 +195,12 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
       const createdExchange = await exchangeStore.createExchange(exchangeData);
 
       if (createdExchange) {
-        // Успешно создана заявка
-        alert(`Заявка #${createdExchange.id} успешно создана! Статус: ${createdExchange.status}`);
+        // Успешно создана заявка - показываем модальное окно
+        setCreatedExchange({
+          id: createdExchange.id,
+          status: createdExchange.status
+        });
+        setShowSuccessModal(true);
         
         // Очищаем инпуты
         setWalletAddress('');
@@ -510,6 +519,24 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
           )}
         </div>
       </div>
+      <p className="text-white/70 text-center flex items-center gap-2 mt-4 text-sm justify-center">
+          Для уточнения деталей обмена:
+          <a href="https://t.me/cryptocurrency_exchange_bot" className="text-emerald-400">Написать в Telegram</a>
+        </p>
+
+      {/* Модальное окно успеха */}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title="Заявка создана успешно!"
+        message="Ваша заявка на обмен была успешно создана. Мы свяжемся с вами в ближайшее время для уточнения деталей."
+        exchangeId={createdExchange?.id}
+        status={createdExchange?.status}
+        fromCurrency={fromCurrency?.symbol}
+        toCurrency={toCurrency?.symbol}
+        fromAmount={fromAmount}
+        toAmount={toAmount}
+      />
     </div>
   );
 });

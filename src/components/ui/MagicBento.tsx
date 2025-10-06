@@ -649,7 +649,6 @@ const MagicBento: React.FC<BentoProps> = ({
         paymentCurrencyName: toData.paymentCurrency?.name
       }
     });
-    alert('Заявка создана! (Это заглушка)');
   };
 
   // Автоматическая конвертация при изменении суммы или валюты в первой карточке
