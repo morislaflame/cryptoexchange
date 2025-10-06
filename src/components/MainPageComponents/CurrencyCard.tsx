@@ -6,6 +6,7 @@ import Divider from '../ui/Divider';
 import CurrencyCardList from './CurrencyCardList';
 import BankNetworkSelector from './BankNetworkSelector';
 import { type Currency, type BankOption, type NetworkOption, type PaymentCurrencyOption, mockCurrencies, categoryLabels } from '../../types/currency';
+import { formatAmount } from '../../utils/formatNumbers';
 import './CurrencyCard.css';
 
 interface CurrencyCardProps {
@@ -119,11 +120,7 @@ const CurrencyCard: React.FC<CurrencyCardProps> = ({
 
   // Форматирование суммы в зависимости от типа валюты
   const formatDisplayAmount = (amount: string) => {
-    const num = parseFloat(amount);
-    if (isNaN(num) || !amount) {
-      return selectedCurrency?.category === 'fiat' ? '0.00' : '0.000000';
-    }
-    return selectedCurrency?.category === 'fiat' ? num.toFixed(2) : num.toFixed(6);
+    return formatAmount(amount, selectedCurrency);
   };
 
   return (

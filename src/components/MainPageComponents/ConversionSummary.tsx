@@ -8,6 +8,7 @@ import { useStore } from '../../store/StoreProvider';
 import { type CreateExchangeData } from '../../http/exchangeAPI';
 import { validationService } from '../../services/validationService';
 import { type ExchangeValidationData } from '../../types/validation';
+import { formatAmount, formatExchangeRate } from '../../utils/formatNumbers';
 
 interface ConversionSummaryProps {
   fromCurrency?: Currency;
@@ -98,23 +99,6 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
   // Используем реальный курс обмена, если он доступен
   const exchangeRate = realExchangeRate;
 
-  const formatAmount = (amount: string, currency?: Currency) => {
-    const num = parseFloat(amount);
-    if (isNaN(num)) {
-      // Для фиатных валют 2 знака, для остальных 6
-      return currency?.category === 'fiat' ? '0.00' : '0.000000';
-    }
-    // Для фиатных валют 2 знака после запятой, для криптовалют и платежек 6
-    return currency?.category === 'fiat' ? num.toFixed(2) : num.toFixed(6);
-  };
-
-  const formatRate = (rate: number) => {
-    if (rate >= 1) {
-      return `1 ${fromCurrency?.symbol} = ${rate.toFixed(6)} ${toCurrency?.symbol}`;
-    } else {
-      return `1 ${toCurrency?.symbol} = ${(1/rate).toFixed(6)} ${fromCurrency?.symbol}`;
-    }
-  };
 
   // Определяем какой инпут показывать
   const shouldShowCryptoInput = toCurrency?.category === 'crypto' && selectedNetwork;
@@ -356,7 +340,7 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
                 Курс обмена:
               </span>
               <span className="text-lg font-bold">
-                {formatRate(exchangeRate)}
+                {formatExchangeRate(exchangeRate, fromCurrency?.symbol, toCurrency?.symbol)}
               </span>
             </div>
           </div>

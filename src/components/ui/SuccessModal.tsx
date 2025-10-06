@@ -6,6 +6,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { GoCheckCircle } from 'react-icons/go';
+import { addThousandsSeparator } from '@/utils/formatNumbers';
 
 interface SuccessModalProps {
   isOpen: boolean;
@@ -75,7 +76,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-white/70">Обмен:</span>
                   <span className="text-sm font-semibold text-white">
-                    {fromAmount} {fromCurrency} → {toAmount} {toCurrency}
+                    {addThousandsSeparator(fromAmount)} {fromCurrency} → {addThousandsSeparator(toAmount)} {toCurrency}
                   </span>
                 </div>
               </div>
