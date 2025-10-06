@@ -6,7 +6,7 @@ const AmlPage = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="w-full min-h-screen text-gray-100 py-12 px-4">
+        <div className="w-full min-h-screen text-gray-100 p-4">
             <div className="max-w-4xl mx-auto">
                 <Button 
                     onClick={() => navigate(MAIN_ROUTE)}

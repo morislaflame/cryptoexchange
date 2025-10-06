@@ -521,7 +521,7 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
       </div>
       <p className="text-white/70 text-center flex items-center gap-2 mt-4 text-sm justify-center">
           Для уточнения деталей обмена:
-          <a href="https://t.me/cryptocurrency_exchange_bot" className="text-emerald-400">Написать в Telegram</a>
+          <a href={import.meta.env.VITE_SUPPORT_LINK} target="_blank" rel="noopener noreferrer" className="text-emerald-400">Написать в Telegram</a>
         </p>
 
       {/* Модальное окно успеха */}

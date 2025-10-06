@@ -6,7 +6,8 @@ import RulesPage from '@/pages/RulesPage';
 import AmlPage from '@/pages/AmlPage';
 import FaqPage from '@/pages/FaqPage';
 import AuthPage from '@/pages/AuthPage';
-import { MAIN_ROUTE, ADMIN_CHATS_ROUTE, RULES_ROUTE, AML_ROUTE, FAQ_ROUTE, LOGIN_ROUTE, REGISTRATION_ROUTE } from '@/utils/consts';
+import ProfilePage from '@/pages/ProfilePage';
+import { MAIN_ROUTE, ADMIN_CHATS_ROUTE, RULES_ROUTE, AML_ROUTE, FAQ_ROUTE, LOGIN_ROUTE, REGISTRATION_ROUTE, PROFILE_ROUTE } from '@/utils/consts';
 
 interface Route {
   path: string;
@@ -24,7 +25,7 @@ export const publicRoutes: Route[] = [
 ];
 
 export const privateRoutes: Route[] = [
-  // Для авторизованных пользователей - позже добавим личный кабинет и т.д.
+  { path: PROFILE_ROUTE, Component: ProfilePage },
 ];
 
 export const adminRoutes: Route[] = [

@@ -2,8 +2,9 @@ import React, { useLayoutEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
 import './CardNav.css';
 import { LOGIN_ROUTE } from '@/utils/consts';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useStore } from '@/store/StoreProvider';
+import UserAvatar from './UserAvatar';
 
 type CardNavLink = {
   label: string;
@@ -181,24 +182,28 @@ const CardNav: React.FC<CardNavProps> = ({
           {!isExpanded && (
             <div className="nav-section-links">
               {items.map((item, idx) => (
-                <a 
+                <Link 
                   key={`section-${idx}`}
-                  href={item.href} 
+                  to={item.href} 
                   className="nav-section-link"
                   style={{ color: menuColor || '#fff' }}
                 >
                   {item.label}
-                </a>
+                </Link>
               ))}
             </div>
           )}
           <div className="flex items-center gap-4">
-            <button
-              onClick={handleAuthClick}
-              className="px-4 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 hover:border-emerald-500/50 rounded-lg text-emerald-400 hover:text-emerald-300 transition-all duration-300 backdrop-blur-sm cursor-pointer"
-            >
-              {user.isAuth ? 'Выйти' : 'Войти'}
-            </button>
+            {user.isAuth ? (
+              <UserAvatar />
+            ) : (
+              <button
+                onClick={handleAuthClick}
+                className="px-4 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 hover:border-emerald-500/50 rounded-lg text-emerald-400 hover:text-emerald-300 transition-all duration-300 backdrop-blur-sm cursor-pointer"
+              >
+                Войти
+              </button>
+            )}
           <div
             className={`hamburger-menu ${isHamburgerOpen ? 'open' : ''}`}
             onClick={toggleMenu}
@@ -215,18 +220,18 @@ const CardNav: React.FC<CardNavProps> = ({
 
         <div className="card-nav-content" aria-hidden={!isExpanded}>
           {(items || []).slice(0, 3).map((item, idx) => (
-            <a
+            <Link
               key={`${item.label}-${idx}`}
               className="nav-card bg-white/5 border border-white/10"
               ref={setCardRef(idx)}
-              href={item.href}
+              to={item.href}
               style={{ color: item.textColor }}
             >
               <div className="nav-card-label">{item.label}</div>
               <div className="nav-card-description">
                 {item.description}
               </div>
-            </a>
+            </Link>
           ))}
         </div>
         

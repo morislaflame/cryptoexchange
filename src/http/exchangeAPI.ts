@@ -74,7 +74,11 @@ export interface ExchangeListResponse {
 
 // Создание новой заявки (поддерживает гостевые заявки)
 export const createExchange = async (exchangeData: CreateExchangeData): Promise<Exchange> => {
-  const { data } = await $host.post('api/exchange/', exchangeData);
+  // Проверяем, есть ли токен в localStorage
+  const token = localStorage.getItem('token');
+  const client = token ? $authHost : $host;
+  
+  const { data } = await client.post('api/exchange/', exchangeData);
   return data;
 };
 

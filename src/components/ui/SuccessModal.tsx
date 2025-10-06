@@ -85,7 +85,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
 
         <p className="text-white/70 mb-2 text-center flex flex-col items-center gap-2">
           Для ускорения процесса обмена, пожалуйста, свяжитесь с нами через Telegram.
-          <a href="https://t.me/cryptocurrency_exchange_bot" className="text-emerald-400">Написать в Telegram</a>
+          <a href={import.meta.env.VITE_SUPPORT_LINK} target="_blank" rel="noopener noreferrer" className="text-emerald-400">Написать в Telegram</a>
         </p>
 
         {/* Action button */}
