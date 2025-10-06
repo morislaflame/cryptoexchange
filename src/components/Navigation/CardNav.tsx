@@ -172,6 +172,17 @@ const CardNav: React.FC<CardNavProps> = ({
     if (el) cardsRef.current[i] = el;
   };
 
+  const handleLinkClick = () => {
+    if (isExpanded) {
+      setIsHamburgerOpen(false);
+      const tl = tlRef.current;
+      if (tl) {
+        tl.eventCallback('onReverseComplete', () => setIsExpanded(false));
+        tl.reverse();
+      }
+    }
+  };
+
   return (
     <div className={`w-full z-[99] box-border ${className}`}>
       <nav 
@@ -226,15 +237,16 @@ const CardNav: React.FC<CardNavProps> = ({
         </div>
 
         <div 
-          className={`absolute left-0 right-0 top-[60px] bottom-0 p-2 flex items-end gap-3 invisible pointer-events-none z-[1] md:flex-row flex-col md:items-end items-stretch md:justify-start justify-start ${isExpanded ? 'visible pointer-events-auto' : ''}`} 
+          className={`absolute left-0 right-0 top-[60px] bottom-0 p-2 flex items-end gap-3 z-[1] md:flex-row flex-col md:items-end items-stretch md:justify-start justify-start ${isExpanded ? 'visible pointer-events-auto' : 'invisible pointer-events-none'}`} 
           aria-hidden={!isExpanded}
         >
-          {(items || []).slice(0, 3).map((item, idx) => (
+          {(items || []).slice(0, 5).map((item, idx) => (
             <Link
               key={`${item.label}-${idx}`}
               className="md:h-full md:flex-1 md:min-w-0 h-auto flex-1 flex-auto max-h-none min-h-[60px] rounded-[calc(0.75rem-0.2rem)] relative flex flex-col p-3 gap-2 select-none text-white bg-white/5 border border-white/10"
               ref={setCardRef(idx)}
               to={item.href}
+              onClick={handleLinkClick}
               style={{ color: item.textColor }}
             >
               <div className="font-normal text-[22px] tracking-[-0.5px] md:text-[22px] text-lg">{item.label}</div>

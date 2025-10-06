@@ -53,8 +53,8 @@ const AdminChatsPage: React.FC = observer(() => {
 
         socket.on('new_message', (message: ChatMessage) => {
             console.log('New message received:', message);
-            // Добавляем сообщение в store
-            chat.addMessage(message);
+            // Добавляем сообщение в store с отслеживанием непрочитанных
+            chat.addMessageWithUnreadTracking(message, user.user!.id);
         });
 
         socket.on('chat_messages', (data: { chatId: number, messages: ChatMessage[] }) => {
@@ -74,15 +74,29 @@ const AdminChatsPage: React.FC = observer(() => {
     // Подключение к выбранному чату
     useEffect(() => {
         if (selectedChat && isConnected && socketRef.current) {
+            console.log('Joining chat:', selectedChat.id);
             socketRef.current.emit('join_chat', selectedChat.id);
             // Загружаем полную историю сообщений чата
             chat.fetchChatMessagesAdmin(selectedChat.id);
         }
     }, [selectedChat, isConnected, chat]);
 
+    // Отключение от предыдущего чата при смене
+    useEffect(() => {
+        return () => {
+            if (selectedChat && socketRef.current) {
+                console.log('Leaving chat:', selectedChat.id);
+                socketRef.current.emit('leave_chat', selectedChat.id);
+            }
+        };
+    }, [selectedChat]);
+
     const handleSelectChat = (chatItem: Chat) => {
         setSelectedChat(chatItem);
         chat.setMessages([]); // Очищаем предыдущие сообщения
+        
+        // Отмечаем чат как прочитанный при выборе
+        chat.removeUnreadChat(chatItem.id);
     };
 
     const handleSendMessage = (text: string) => {
@@ -97,6 +111,21 @@ const AdminChatsPage: React.FC = observer(() => {
         });
     };
 
+    // Сортировка чатов: сначала непрочитанные, потом по дате обновления
+    const sortedChats = [...chat.chats].sort((a, b) => {
+        const aIsUnread = chat.isChatUnread(a.id);
+        const bIsUnread = chat.isChatUnread(b.id);
+        
+        // Если один непрочитанный, а другой нет - непрочитанный идет первым
+        if (aIsUnread && !bIsUnread) return -1;
+        if (!aIsUnread && bIsUnread) return 1;
+        
+        // Если оба непрочитанные или оба прочитанные - сортируем по дате обновления
+        const aDate = new Date(a.updatedAt || a.createdAt || 0);
+        const bDate = new Date(b.updatedAt || b.createdAt || 0);
+        return bDate.getTime() - aDate.getTime();
+    });
+
     if (user.user?.role !== 'ADMIN') {
         return (
             <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-emerald-950 flex items-center justify-center">
@@ -108,7 +137,17 @@ const AdminChatsPage: React.FC = observer(() => {
     return (
         <div className="min-h-screen">
             <div className="container mx-auto px-4 py-8">
-                <h1 className="text-3xl font-bold text-white mb-6">Панель управления чатами</h1>
+                <div className="flex items-center justify-between mb-6">
+                    <h1 className="text-3xl font-bold text-white">Панель управления чатами</h1>
+                    {chat.unreadChats.length > 0 && (
+                        <div className="flex items-center gap-2 bg-orange-500/20 border border-orange-400/30 rounded-full px-3 py-1">
+                            <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                            <span className="text-orange-400 text-sm font-medium">
+                                {chat.unreadChats.length} непрочитанных чатов
+                            </span>
+                        </div>
+                    )}
+                </div>
                 
                 <div className="flex gap-4 h-[calc(100vh-200px)]">
                     {/* Sidebar со списком чатов */}
@@ -121,24 +160,32 @@ const AdminChatsPage: React.FC = observer(() => {
                             <div className="text-white/60 text-center py-4">Нет активных чатов</div>
                         ) : (
                             <div className="space-y-2 overflow-hidden overflow-y-auto hide-scrollbar ios-scroll">
-                                {chat.chats.map((chatItem) => {
+                                {sortedChats.map((chatItem) => {
                                     const userInChat = chatItem.chatUsers?.find(u => u.role === 'USER');
                                     const lastMessage = chatItem.messages?.[0];
+                                    const isUnread = chat.isChatUnread(chatItem.id);
                                     
                                     return (
                                         <div
                                             key={chatItem.id}
                                             onClick={() => handleSelectChat(chatItem)}
-                                            className={`p-4 rounded-xl cursor-pointer transition-all duration-200 ${
+                                            className={`p-4 rounded-xl cursor-pointer transition-all duration-200 relative ${
                                                 selectedChat?.id === chatItem.id
                                                     ? 'bg-emerald-500/20 border-emerald-400/50'
-                                                    : 'bg-white/5 hover:bg-white/10 border-white/10'
+                                                    : isUnread 
+                                                        ? 'bg-orange-500/10 border-orange-400/30 hover:bg-orange-500/20'
+                                                        : 'bg-white/5 hover:bg-white/10 border-white/10'
                                             } border`}
                                         >
                                             <div className="flex justify-between items-start mb-2">
-                                                <span className="font-medium text-white">
-                                                    {chatItem.title || `Чат #${chatItem.id}`}
-                                                </span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-medium text-white">
+                                                        {chatItem.title || `Чат #${chatItem.id}`}
+                                                    </span>
+                                                    {isUnread && (
+                                                        <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                                                    )}
+                                                </div>
                                                 <span className="text-xs text-white/50">
                                                     {chatItem.type}
                                                 </span>

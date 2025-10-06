@@ -43,7 +43,7 @@ const Navigation = observer(() => {
   // Добавляем пункты для админа, если пользователь - админ
   const adminItems = user.isAuth && user.user?.role === 'ADMIN' ? [
     {
-      label: "Управление чатами",
+      label: "Все чаты",
       bgColor: "#2d1a3d",
       textColor: "#fff",
       description: "Панель управления чатами поддержки",
@@ -53,7 +53,7 @@ const Navigation = observer(() => {
       ]
     },
     {
-      label: "Управление заявками",
+      label: "Все заявки",
       bgColor: "#1a2d3d",
       textColor: "#fff",
       description: "Панель управления заявками на обмен",

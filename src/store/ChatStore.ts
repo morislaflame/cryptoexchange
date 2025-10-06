@@ -10,6 +10,7 @@ export default class ChatStore {
     _loading = false;
     _error = '';
     _isGuest = false;
+    _unreadChats: Set<number> = new Set(); // ID чатов с непрочитанными сообщениями
 
     constructor() {
         makeAutoObservable(this);
@@ -41,6 +42,17 @@ export default class ChatStore {
         }
     }
 
+    // Добавление сообщения с отслеживанием непрочитанных (для админ-панели)
+    addMessageWithUnreadTracking(message: ChatMessage, currentUserId?: number) {
+        // Добавляем сообщение в общий список
+        this.addMessage(message);
+        
+        // Если это сообщение не от текущего пользователя (включая гостевые сообщения), помечаем чат как непрочитанный
+        if (currentUserId && (message.userId !== currentUserId || message.senderType === 'GUEST')) {
+            this.addUnreadChat(message.chatId);
+        }
+    }
+
     setUnreadCount(count: number) {
         this._unreadCount = count;
     }
@@ -55,6 +67,23 @@ export default class ChatStore {
 
     setIsGuest(isGuest: boolean) {
         this._isGuest = isGuest;
+    }
+
+    // Методы для управления непрочитанными чатами
+    addUnreadChat(chatId: number) {
+        this._unreadChats.add(chatId);
+    }
+
+    removeUnreadChat(chatId: number) {
+        this._unreadChats.delete(chatId);
+    }
+
+    clearUnreadChats() {
+        this._unreadChats.clear();
+    }
+
+    isChatUnread(chatId: number): boolean {
+        return this._unreadChats.has(chatId);
     }
 
     // Создание или получение чата поддержки
@@ -298,5 +327,9 @@ export default class ChatStore {
 
     get isGuest() {
         return this._isGuest;
+    }
+
+    get unreadChats() {
+        return Array.from(this._unreadChats);
     }
 }

@@ -33,6 +33,8 @@ export interface Chat {
     title?: string;
     type: "DIRECT" | "SUPPORT";
     isActive: boolean;
+    createdAt?: string;
+    updatedAt?: string;
     users?: Array<{
         id: number;
         email?: string;
