@@ -44,6 +44,7 @@ export default class UserStore {
         try {
             this.setIsAuth(false);
             this.setUser(null);
+            localStorage.removeItem('token');
         } catch (error) {
             console.error("Error during logout:", error);
         }

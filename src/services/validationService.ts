@@ -166,18 +166,19 @@ class ValidationService {
     const email = data.recipientEmail?.trim() || '';
     const telegram = data.recipientTelegramUsername?.trim() || '';
     
-    if (!email && !telegram) {
-      return { valid: false, error: 'Необходимо указать email или Telegram username' };
+    // Telegram username обязателен
+    if (!telegram) {
+      return { valid: false, error: 'Необходимо указать Telegram username' };
     }
     
-    // Валидация email если указан
+    // Валидация формата Telegram username
+    if (!this.isValidTelegramUsername(telegram)) {
+      return { valid: false, error: 'Некорректный формат Telegram username' };
+    }
+    
+    // Валидация email если указан (опционально)
     if (email && !this.isValidEmail(email)) {
       return { valid: false, error: 'Некорректный формат email' };
-    }
-    
-    // Валидация Telegram username если указан
-    if (telegram && !this.isValidTelegramUsername(telegram)) {
-      return { valid: false, error: 'Некорректный формат Telegram username' };
     }
     
     return { valid: true };
@@ -292,16 +293,16 @@ class ValidationService {
     const emailTrimmed = email?.trim() || '';
     const telegramTrimmed = telegram?.trim() || '';
 
-    if (!emailTrimmed && !telegramTrimmed) {
-      errors.push('Необходимо указать email или Telegram username');
+    // Telegram username обязателен
+    if (!telegramTrimmed) {
+      errors.push('Необходимо указать Telegram username');
+    } else if (!this.isValidTelegramUsername(telegramTrimmed)) {
+      errors.push('Некорректный формат Telegram username');
     }
 
+    // Email опционален, но если указан - проверяем формат
     if (emailTrimmed && !this.isValidEmail(emailTrimmed)) {
       errors.push('Некорректный формат email');
-    }
-
-    if (telegramTrimmed && !this.isValidTelegramUsername(telegramTrimmed)) {
-      errors.push('Некорректный формат Telegram username');
     }
 
     return {

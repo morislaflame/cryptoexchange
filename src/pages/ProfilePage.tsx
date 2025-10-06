@@ -68,6 +68,11 @@ const ProfilePage = observer(() => {
     }
   };
 
+  const handleLogout = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        user.logout();
+      };
+
   if (!user.isAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -83,7 +88,8 @@ const ProfilePage = observer(() => {
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         {/* Заголовок профиля */}
-        <div className="mb-8">
+        <div className="mb-8 flex justify-between items-center">
+            <div>
           <h1 className="text-2xl font-bold text-white mb-2">Мой профиль</h1>
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
@@ -96,6 +102,13 @@ const ProfilePage = observer(() => {
               </p>
             </div>
           </div>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 hover:border-red-500/50 rounded-lg text-red-400 hover:text-red-300 transition-all duration-300 backdrop-blur-sm cursor-pointer text-sm"
+        >
+            Выйти
+        </button>
         </div>
 
         {/* Фильтры статусов */}

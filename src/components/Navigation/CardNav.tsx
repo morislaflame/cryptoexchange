@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
 import './CardNav.css';
-import { LOGIN_ROUTE } from '@/utils/consts';
+import { LOGIN_ROUTE, MAIN_ROUTE } from '@/utils/consts';
 import { useNavigate, Link } from 'react-router-dom';
 import { useStore } from '@/store/StoreProvider';
 import UserAvatar from './UserAvatar';
@@ -173,7 +173,7 @@ const CardNav: React.FC<CardNavProps> = ({
     <div className={`card-nav-container ${className}`}>
       <nav ref={navRef} className={`card-nav ${isExpanded ? 'open' : ''}`} style={{ backgroundColor: baseColor }}>
         <div className="card-nav-top">
-          <div className="logo-container">
+          <div className="logo-container cursor-pointer" onClick={() => navigate(MAIN_ROUTE)}>
             <img src={logo} alt={logoAlt} className="logo" />
           </div>
           
