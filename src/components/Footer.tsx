@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MAIN_ROUTE, RULES_ROUTE, AML_ROUTE, FAQ_ROUTE } from '@/utils/consts';
+import { MAIN_ROUTE, RULES_ROUTE, AML_ROUTE } from '@/utils/consts';
 
 const Footer: React.FC = () => {
   return (
