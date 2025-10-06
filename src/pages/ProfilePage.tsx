@@ -5,6 +5,7 @@ import { type Exchange } from '@/http/exchangeAPI';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { type Currency } from '@/types/currency';
 // import { format } from 'date-fns';
 // import { ru } from 'date-fns/locale';
 
@@ -73,11 +74,23 @@ const ProfilePage = observer(() => {
         user.logout();
       };
 
+    const formatFeeAmount = (feeAmount: string, toCurrency: Currency) => {
+        if (toCurrency.category === 'crypto') {
+            return Number(feeAmount).toFixed(6);
+        } else if (toCurrency.category === 'fiat') {
+            return Number(feeAmount).toFixed(2);
+        } else if (toCurrency.category === 'payment') {
+            return Number(feeAmount).toFixed(2);
+        } else {
+            return Number(feeAmount).toFixed(2);
+        }
+    };
+
   if (!user.isAuth) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center max-w-[80vw] mx-auto">
         <Card className="p-8 text-center">
-          <h1 className="text-2xl font-bold text-white mb-4">Необходима авторизация</h1>
+          <h1 className="text-2xl font-bold text-white mb-2">Необходима авторизация</h1>
           <p className="text-gray-300">Для просмотра профиля необходимо войти в систему</p>
         </Card>
       </div>
@@ -176,7 +189,7 @@ const ProfilePage = observer(() => {
           <div className="space-y-4">
             {exchange.exchanges.map((exchangeItem: Exchange) => (
               <Card key={exchangeItem.id} className="p-6 bg-white/5 backdrop-blur-sm border-white/10">
-                <div className="flex justify-between items-start mb-4">
+                <div className="flex justify-between items-start">
                   <div>
                     <h3 className="text-lg font-semibold text-white mb-2">
                       Заявка #{exchangeItem.id}
@@ -201,7 +214,7 @@ const ProfilePage = observer(() => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Отправка */}
                   <div className="bg-white/5 rounded-lg p-4">
                     <h4 className="text-sm font-medium text-gray-300 mb-2">Отправляете</h4>
@@ -266,7 +279,7 @@ const ProfilePage = observer(() => {
                 {/* Комиссия и курс */}
                 <div className="flex justify-between items-center text-sm">
                   <div className="text-gray-300">
-                    Комиссия: {exchangeItem.feeAmount} {exchangeItem.to.currency.symbol} ({exchangeItem.feePercent}%)
+                    Комиссия: {formatFeeAmount(exchangeItem.feeAmount || '0', exchangeItem.to.currency as Currency)} {exchangeItem.to.currency.symbol} ({exchangeItem.feePercent}%)
                   </div>
                   {exchangeItem.exchangeRate && (
                     <div className="text-gray-300">

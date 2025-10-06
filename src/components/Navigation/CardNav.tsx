@@ -1,10 +1,10 @@
 import React, { useLayoutEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
-import './CardNav.css';
 import { LOGIN_ROUTE, MAIN_ROUTE } from '@/utils/consts';
 import { useNavigate, Link } from 'react-router-dom';
 import { useStore } from '@/store/StoreProvider';
 import UserAvatar from './UserAvatar';
+import { Button } from '../ui/button';
 
 type CardNavLink = {
   label: string;
@@ -64,17 +64,19 @@ const CardNav: React.FC<CardNavProps> = ({
 
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
     if (isMobile) {
-      const contentEl = navEl.querySelector('.card-nav-content') as HTMLElement;
+      const contentEl = navEl.querySelector('[class*="absolute left-0 right-0 top-[60px]"]') as HTMLElement;
       if (contentEl) {
         const wasVisible = contentEl.style.visibility;
         const wasPointerEvents = contentEl.style.pointerEvents;
         const wasPosition = contentEl.style.position;
         const wasHeight = contentEl.style.height;
+        const wasDisplay = contentEl.style.display;
 
         contentEl.style.visibility = 'visible';
         contentEl.style.pointerEvents = 'auto';
         contentEl.style.position = 'static';
         contentEl.style.height = 'auto';
+        contentEl.style.display = 'flex';
 
         // Принудительный пересчет layout
         void contentEl.offsetHeight;
@@ -87,6 +89,7 @@ const CardNav: React.FC<CardNavProps> = ({
         contentEl.style.pointerEvents = wasPointerEvents;
         contentEl.style.position = wasPosition;
         contentEl.style.height = wasHeight;
+        contentEl.style.display = wasDisplay;
 
         return topBar + contentHeight + padding;
       }
@@ -170,22 +173,26 @@ const CardNav: React.FC<CardNavProps> = ({
   };
 
   return (
-    <div className={`card-nav-container ${className}`}>
-      <nav ref={navRef} className={`card-nav ${isExpanded ? 'open' : ''}`} style={{ backgroundColor: baseColor }}>
-        <div className="card-nav-top">
-          <div className="logo-container cursor-pointer" onClick={() => navigate(MAIN_ROUTE)}>
-            <img src={logo} alt={logoAlt} className="logo" />
+    <div className={`w-full z-[99] box-border ${className}`}>
+      <nav 
+        ref={navRef} 
+        className={`block h-[60px] p-0 border border-white/10 rounded-xl shadow-lg relative bg-transparent filter drop-shadow-[0_0_10px_rgba(0,0,0,0.1)] backdrop-blur-[10px] overflow-hidden will-change-[height] ${isExpanded ? 'open' : ''}`} 
+        style={{ backgroundColor: baseColor }}
+      >
+        <div className="absolute top-0 left-0 right-0 h-[60px] flex items-center justify-between px-[1.1rem] z-[2] md:px-[1.1rem] px-4">
+          <div className="flex items-center cursor-pointer" onClick={() => navigate(MAIN_ROUTE)}>
+            <img src={logo} alt={logoAlt} className="h-7" />
           </div>
           
 
           {/* Ссылки с заголовками разделов - показываются только в свернутом состоянии */}
           {!isExpanded && (
-            <div className="nav-section-links">
+            <div className="hidden md:flex items-center gap-8 flex-1 justify-center">
               {items.map((item, idx) => (
                 <Link 
                   key={`section-${idx}`}
                   to={item.href} 
-                  className="nav-section-link"
+                  className="text-base font-medium no-underline text-white transition-opacity duration-300 ease-in-out cursor-pointer hover:opacity-75"
                   style={{ color: menuColor || '#fff' }}
                 >
                   {item.label}
@@ -197,38 +204,41 @@ const CardNav: React.FC<CardNavProps> = ({
             {user.isAuth ? (
               <UserAvatar />
             ) : (
-              <button
+              <Button
                 onClick={handleAuthClick}
-                className="px-4 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 hover:border-emerald-500/50 rounded-lg text-emerald-400 hover:text-emerald-300 transition-all duration-300 backdrop-blur-sm cursor-pointer"
+                className="px-4 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 hover:border-emerald-500/50 rounded-lg text-emerald-400 hover:text-emerald-300 transition-all duration-300 backdrop-blur-sm cursor-pointer text-sm"
               >
                 Войти
-              </button>
+              </Button>
             )}
           <div
-            className={`hamburger-menu ${isHamburgerOpen ? 'open' : ''}`}
+            className={`h-full flex flex-col items-center justify-center cursor-pointer gap-1.5 hover:[&>div]:opacity-75 ${isHamburgerOpen ? 'open' : ''}`}
             onClick={toggleMenu}
             role="button"
             aria-label={isExpanded ? 'Close menu' : 'Open menu'}
             tabIndex={0}
             style={{ color: menuColor || '#000' }}
           >
-            <div className="hamburger-line" />
-            <div className="hamburger-line" />
+            <div className={`w-[30px] h-0.5 bg-current transition-all duration-[250ms] ease-in-out origin-[50%_50%] ${isHamburgerOpen ? 'translate-y-1 rotate-45' : ''}`} />
+            <div className={`w-[30px] h-0.5 bg-current transition-all duration-[250ms] ease-in-out origin-[50%_50%] ${isHamburgerOpen ? '-translate-y-1 -rotate-45' : ''}`} />
           </div>
           </div>
         </div>
 
-        <div className="card-nav-content" aria-hidden={!isExpanded}>
+        <div 
+          className={`absolute left-0 right-0 top-[60px] bottom-0 p-2 flex items-end gap-3 invisible pointer-events-none z-[1] md:flex-row flex-col md:items-end items-stretch md:justify-start justify-start ${isExpanded ? 'visible pointer-events-auto' : ''}`} 
+          aria-hidden={!isExpanded}
+        >
           {(items || []).slice(0, 3).map((item, idx) => (
             <Link
               key={`${item.label}-${idx}`}
-              className="nav-card bg-white/5 border border-white/10"
+              className="md:h-full md:flex-1 md:min-w-0 h-auto flex-1 flex-auto max-h-none min-h-[60px] rounded-[calc(0.75rem-0.2rem)] relative flex flex-col p-3 gap-2 select-none text-white bg-white/5 border border-white/10"
               ref={setCardRef(idx)}
               to={item.href}
               style={{ color: item.textColor }}
             >
-              <div className="nav-card-label">{item.label}</div>
-              <div className="nav-card-description">
+              <div className="font-normal text-[22px] tracking-[-0.5px] md:text-[22px] text-lg">{item.label}</div>
+              <div className="text-sm leading-[1.4] opacity-80 font-light md:text-sm text-[13px]">
                 {item.description}
               </div>
             </Link>

@@ -50,6 +50,9 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
   const [paymentDetails, setPaymentDetails] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   
+  // Состояние для отслеживания попыток отправки формы
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
+  
   // Состояния для гостевых данных
   const [recipientEmail, setRecipientEmail] = useState('');
   const [recipientTelegramUsername, setRecipientTelegramUsername] = useState('');
@@ -145,6 +148,9 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
 
   // Обработчик создания заявки
   const handleCreateOrder = async () => {
+    // Отмечаем, что пользователь попытался отправить форму
+    setHasAttemptedSubmit(true);
+    
     if (!isFormValid || !fromCurrency || !toCurrency) {
       return;
     }
@@ -213,6 +219,9 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
         if (!userStore.user?.username) {
           setRecipientTelegramUsername('');
         }
+        
+        // Сбрасываем состояние попытки отправки
+        setHasAttemptedSubmit(false);
         
         // Вызываем колбэк, если он есть
         if (onCreateOrder) {
@@ -319,14 +328,15 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
 
           {/* Получаете (если нет информации о комиссии - показываем как раньше) */}
           {(!toAmountWithoutFee || !feeAmount) && (
-            <div className="p-5 bg-white/5 border border-white/10 rounded-xl">
-              <div className="flex items-center justify-between gap-4">
-                <div className="text-white text-xl font-bold flex-grow">
+            <div className="p-3 bg-emerald-500/5 border border-emerald-500/20 rounded-xl">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm text-white/70">К получению:</p>
+                <div className="text-white text-lg font-bold flex-grow">
                   {formatAmount(toAmount, toCurrency)}
                 </div>
                 {toCurrency && (
                   <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm px-2 py-1 border border-emerald-500/20 rounded-lg backdrop-blur-sm justify-center">
-                    <span className="font-bold">
+                    <span className="font-bold ">
                       {toCurrency.symbol}
                     </span>
                   </div>
@@ -465,7 +475,7 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
                 {/* Показываем поле Telegram только если у пользователя нет username */}
                 {(!userStore.isAuth || !userStore.user?.username) && (
                   <div>
-                    <label className="text-sm text-white/70 font-medium">Telegram username</label>
+                    <label className="text-sm text-white/70 font-medium">Telegram юзернейм</label>
                     <input
                       type="text"
                       value={recipientTelegramUsername}
@@ -510,7 +520,7 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
               'Создать заявку'
             )}
           </button>
-          {!validationResult.isValid && !userStore.isAuth && (
+          {hasAttemptedSubmit && !validationResult.isValid && !userStore.isAuth && (
             <p className="text-xs text-red-400/80 text-center mt-2">
               {validationResult.errors.find(error => 
                 error.includes('email') || error.includes('Telegram')
@@ -519,8 +529,8 @@ const ConversionSummary: React.FC<ConversionSummaryProps> = observer(({
           )}
         </div>
       </div>
-      <p className="text-white/70 text-center flex items-center gap-2 mt-4 text-sm justify-center">
-          Для уточнения деталей обмена:
+      <p className="text-white/70 text-center flex items-center gap-2 mt-4 text-sm justify-center text-left">
+          Для уточнения деталей обмена: 
           <a href={import.meta.env.VITE_SUPPORT_LINK} target="_blank" rel="noopener noreferrer" className="text-emerald-400">Написать в Telegram</a>
         </p>
 

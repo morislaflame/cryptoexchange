@@ -26,7 +26,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
   title,
   message,
   exchangeId,
-  status,
+  // status,
   fromCurrency,
   toCurrency,
   fromAmount,
@@ -60,14 +60,14 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
               <span className="text-sm text-white/70">Номер заявки:</span>
               <span className="text-sm font-semibold text-emerald-400">#{exchangeId}</span>
             </div>
-            {status && (
+            {/* {status && (
               <div className="flex justify-between items-center mt-2">
                 <span className="text-sm text-white/70">Статус:</span>
                 <span className="text-sm font-semibold text-emerald-400 capitalize">
                   {status.toLowerCase()}
                 </span>
               </div>
-            )}
+            )} */}
             
             {/* Exchange details */}
             {fromCurrency && toCurrency && fromAmount && toAmount && (
